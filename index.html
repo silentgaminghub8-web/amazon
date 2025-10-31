@@ -502,6 +502,13 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
             <h2>Add / Edit Order</h2>
             <form id="order-form" class="admin-form">
                 <input type="hidden" id="edit-order-id" name="edit-order-id">
+                
+                <!-- CHANGE 1: ADDED MANUAL ORDER ID FIELD -->
+                <div class="form-group full-width">
+                    <label for="manual-order-id">Order ID (Optional)</label>
+                    <input type="text" id="manual-order-id" name="manual-order-id" placeholder="Leave blank to auto-generate">
+                </div>
+
                 <div class="form-group">
                     <label for="product-image">Product Image URL</label>
                     <input type="url" id="product-image" name="product-image" required>
@@ -520,7 +527,6 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                 </div>
                 <div class="form-group">
                     <label for="delivery-status">Delivery Status Text</label>
-                    <!-- MODIFICATION: Added 'arriving-today' option -->
                     <select id="delivery-status" name="delivery-status">
                         <option value="arriving-today">Arriving Today</option>
                         <option value="arriving-tomorrow">Arriving tomorrow</option>
@@ -565,13 +571,11 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     <label for="shipping-address">Shipping Address</label>
                     <textarea id="shipping-address" name="shipping-address" required></textarea>
                 </div>
-                <!-- CHANGE 1: Added textarea for product specs -->
                 <div class="form-group full-width">
                     <label for="product-specs">Product Specifications</label>
                     <textarea id="product-specs" name="product-specs" placeholder="Enter each spec on a new line..."></textarea>
                 </div>
 
-                <!-- NEW: OTP Toggle and Fill Box -->
                 <div class="form-group">
                     <label for="otp-enabled">Enable OTP Verification</label>
                     <label class="toggle-switch">
@@ -584,6 +588,15 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     <input type="text" id="order-otp" name="order-otp" placeholder="Enter 4-digit OTP">
                 </div>
                 
+                <!-- CHANGE 2: ADDED CANCEL ORDER TOGGLE -->
+                <div class="form-group">
+                    <label for="cancel-order">Cancel Order</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cancel-order" name="cancel-order">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
                 <div class="admin-buttons">
                     <button type="submit" class="save-button">Add Order</button>
                     <button type="reset" class="reset-button">Reset Form</button>
@@ -647,7 +660,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     useExternalTracking: false,
                     specs: 'Display: 6.9-inch Super Retina XDR display with ProMotion\nChip: A19 Bionic chip\nCamera: Pro camera system with 64MP Main, Ultra Wide, and Telephoto lenses\nStorage: 1TB\nOS: iOS 19',
                     otpEnabled: false,
-                    otp: ''
+                    otp: '',
+                    isCancelled: false
                 },
                 {
                     id: '403-864645543-2167987498734',
@@ -663,9 +677,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     useExternalTracking: false,
                     specs: 'Sensor: 20.9MP DX-Format CMOS Sensor\nProcessor: EXPEED 6 Image Processor\nVideo: UHD 4K and Full HD Video Recording\nISO: 100-51200\nAutofocus: 209-Point Hybrid AF with Eye Detection',
                     otpEnabled: false,
-                    otp: ''
+                    otp: '',
+                    isCancelled: false
                 },
-                // ... other default orders ...
                 {
                     id: '403-1122334-5566778',
                     date: '18 October 2025',
@@ -680,7 +694,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     useExternalTracking: true,
                     specs: 'Chip: Apple M4 Pro\nMemory: 32GB unified memory\nStorage: 1TB SSD\nDisplay: 16.2-inch Liquid Retina XDR display\nPorts: Three Thunderbolt 4 ports, HDMI port, SDXC card slot, MagSafe 3 port',
                     otpEnabled: false,
-                    otp: ''
+                    otp: '',
+                    isCancelled: false
                 },
                 {
                     id: '403-1234567-8901234',
@@ -696,10 +711,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     useExternalTracking: false,
                     specs: 'Display: 6.1-inch Super Retina XDR display\nChip: A16 Bionic chip\nCamera: Advanced dual-camera system with 48MP Main\nStorage: 512GB\nFeature: Dynamic Island',
                     otpEnabled: false,
-                    otp: ''
+                    otp: '',
+                    isCancelled: false
                 }
             ];
-            saveOrders(); // Save default orders to local storage if it was empty
+            saveOrders();
         }
     }
 
@@ -720,7 +736,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatDate(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
-        // Add timeZone to prevent one-day-off issues with toLocaleDateString
         const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' };
         return date.toLocaleDateString('en-IN', options);
     }
@@ -737,7 +752,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function parseOrderDate(dateString) {
         if (!dateString) return new Date(); // Fallback
         
-        // CHANGE 5: Fixed the date parsing to use UTC, preventing timezone shifts.
         const months = {
             'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
             'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
@@ -753,7 +767,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        // Fallback for ISO strings etc., ensuring it's treated as UTC.
         const fallbackDate = new Date(dateString);
         return new Date(Date.UTC(fallbackDate.getFullYear(), fallbackDate.getMonth(), fallbackDate.getDate()));
     }
@@ -763,7 +776,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let progress = 0;
         if(order.isDelivered) return 100;
 
-        // Simplified logic for progress
         const status = order.status.toLowerCase();
         if (status.includes('delivered')) return 100;
         if (status.includes('out for delivery')) return 75;
@@ -782,7 +794,6 @@ document.addEventListener('DOMContentLoaded', function () {
             pages.forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
 
-            // Update active tab
             document.querySelectorAll('.order-tabs li').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -799,7 +810,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pageId !== 'orders-page' && pageId !== 'admin-page') {
                 switch(pageId) {
                     case 'details-page':
-                        // CHANGE 1 & 2: Added custom specs and track button
                         const specsContent = order.specs ? `<div class="product-specs-content">${order.specs}</div>` : `<p>• High-performance device with latest technology</p><p>• Premium build quality and design</p>`;
                         content = `
                             <div class="container">
@@ -848,7 +858,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         break;
                     case 'track-page':
                         if (order.otpEnabled && order.otp) {
-                            // NEW: OTP View with all requested changes
                             content = `
                                 <div class="container">
                                     <p class="breadcrumb"><a href="#" class="go-back">&lt; Your Orders</a> &gt; <strong>Tracking</strong></p>
@@ -888,7 +897,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>`;
                         } else {
-                            // Original Tracking View
                             content = `
                                 <div class="container">
                                     <p class="breadcrumb"><a href="#" class="go-back">&lt; Your Orders</a> &gt; <strong>Tracking</strong></p>
@@ -931,7 +939,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 targetPage.innerHTML = content;
 
                 if (pageId === 'track-page') {
-                    // Check if it's the OTP view to add star rating logic
                     if (order.otpEnabled && order.otp) {
                         const starRatingContainer = targetPage.querySelector('.star-rating');
                         const stars = starRatingContainer.querySelectorAll('.star');
@@ -962,8 +969,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         starRatingContainer.addEventListener('mouseout', () => {
                              const currentRating = parseInt(starRatingContainer.dataset.rating);
-                             highlightStars(0); // Clear hover effect
-                             setRating(currentRating); // Keep selected stars colored
+                             highlightStars(0);
+                             setRating(currentRating);
                         });
 
                         starRatingContainer.addEventListener('click', e => {
@@ -973,7 +980,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 setRating(rating);
                             }
                         });
-                    } else { // It's the normal tracking view, so run the progress bar logic
+                    } else { 
                         const progressPercentage = calculateTrackingProgress(order);
                         const progressBarFilled = targetPage.querySelector('.progress-line-filled');
                         const progressSteps = targetPage.querySelectorAll('.progress-step');
@@ -1006,12 +1013,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderOrderList() {
         orderListContainer.innerHTML = '';
         orders.forEach(order => {
-            let actionsHTML = order.isDelivered ?
-                `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>
-                <button class="secondary-button help-btn" data-order-id="${order.id}">Get help</button>` :
-                `<button class="amazon-button track-btn" data-order-id="${order.id}">Track package</button>`;
             
-            const deliveredClass = order.isDelivered ? 'order-delivered' : '';
+            // CHANGE 3: MODIFIED LOGIC TO HANDLE CANCELLED ORDERS
+            const isCancelled = order.isCancelled || false;
+            let statusHTML;
+            let actionsHTML;
+
+            if (isCancelled) {
+                statusHTML = `<p style="color: var(--error-red); font-weight: bold;">Cancelled</p>`;
+                actionsHTML = ''; // No actions for a cancelled order
+            } else {
+                statusHTML = `<p>${order.status}</p>`;
+                actionsHTML = order.isDelivered ?
+                    `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>
+                     <button class="secondary-button help-btn" data-order-id="${order.id}">Get help</button>` :
+                    `<button class="amazon-button track-btn" data-order-id="${order.id}">Track package</button>`;
+            }
+            
+            const deliveredClass = order.isDelivered && !isCancelled ? 'order-delivered' : '';
 
             orderListContainer.insertAdjacentHTML('beforeend',
                 `<div class="order-card ${deliveredClass}">
@@ -1036,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                         <div class="product-info">
                             <h3>${order.product}</h3>
-                            <p>${order.status}</p>
+                            ${statusHTML}
                         </div>
                         <div class="order-card-actions">${actionsHTML}</div>
                     </div>
@@ -1065,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <h4>${order.product}</h4>
                     <p><strong>Order ID:</strong> ${order.id}</p>
                     <p><strong>Date:</strong> ${order.date}</p>
-                    <p><strong>External Tracking:</strong> ${order.useExternalTracking ? 'Yes' : 'No'}</p>
+                    <p><strong>Status:</strong> ${order.isCancelled ? '<span style="color: var(--error-red);">Cancelled</span>' : 'Active'}</p>
                 </div>
                 <div class="order-item-actions">
                     <button class="edit-button" data-index="${index}">Edit</button>
@@ -1105,8 +1124,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addNewOrder() {
+        // CHANGE 4: READ MANUAL ORDER ID AND CANCEL TOGGLE
+        const manualOrderId = document.getElementById('manual-order-id').value.trim();
         const newOrder = {
-            id: generateOrderId(),
+            id: manualOrderId ? manualOrderId : generateOrderId(),
             date: formatDate(document.getElementById('order-date').value),
             total: document.getElementById('product-price').value,
             isDelivered: document.getElementById('is-delivered').value === 'true',
@@ -1117,9 +1138,10 @@ document.addEventListener('DOMContentLoaded', function () {
             productLink: document.getElementById('product-link').value,
             trackingLink: document.getElementById('tracking-link').value,
             useExternalTracking: document.getElementById('use-external-tracking').value === 'true',
-            specs: document.getElementById('product-specs').value, // CHANGE 1: Save specs
+            specs: document.getElementById('product-specs').value,
             otpEnabled: document.getElementById('otp-enabled').checked,
-            otp: document.getElementById('order-otp').value
+            otp: document.getElementById('order-otp').value,
+            isCancelled: document.getElementById('cancel-order').checked
         };
 
         const orderPosition = document.getElementById('order-position').value;
@@ -1154,9 +1176,10 @@ document.addEventListener('DOMContentLoaded', function () {
             productLink: document.getElementById('product-link').value,
             trackingLink: document.getElementById('tracking-link').value,
             useExternalTracking: document.getElementById('use-external-tracking').value === 'true',
-            specs: document.getElementById('product-specs').value, // CHANGE 1: Update specs
+            specs: document.getElementById('product-specs').value,
             otpEnabled: document.getElementById('otp-enabled').checked,
-            otp: document.getElementById('order-otp').value
+            otp: document.getElementById('order-otp').value,
+            isCancelled: document.getElementById('cancel-order').checked // CHANGE 5: UPDATE CANCEL STATUS
         };
 
         saveOrders();
@@ -1165,9 +1188,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         alert('Order updated successfully!');
         orderForm.reset();
-        document.getElementById('edit-order-id').value = '';
-        orderForm.querySelector('.save-button').textContent = 'Add Order';
-        document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
     }
     
     function populateFormForEdit(index) {
@@ -1184,9 +1204,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('product-link').value = order.productLink;
         document.getElementById('tracking-link').value = order.trackingLink || '';
         document.getElementById('use-external-tracking').value = String(order.useExternalTracking);
-        document.getElementById('product-specs').value = order.specs || ''; // CHANGE 1: Populate specs textarea
+        document.getElementById('product-specs').value = order.specs || '';
         document.getElementById('otp-enabled').checked = order.otpEnabled || false;
         document.getElementById('order-otp').value = order.otp || '';
+        
+        // CHANGE 6: POPULATE CANCEL TOGGLE AND HANDLE MANUAL ID FIELD
+        document.getElementById('cancel-order').checked = order.isCancelled || false;
+        document.getElementById('manual-order-id').value = ''; // Clear manual ID field
+        document.getElementById('manual-order-id').disabled = true; // Disable when editing
 
         const status = order.status.toLowerCase();
         if (status.includes('arriving today')) {
@@ -1241,7 +1266,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     init();
 
-    // Side menu functionality
     const allMenuBtn = document.querySelector('.all-menu'),
         sideMenu = document.getElementById('side-menu'),
         overlay = document.getElementById('menu-overlay'),
@@ -1266,18 +1290,20 @@ document.addEventListener('DOMContentLoaded', function () {
         handleFormSubmit();
     });
     
+    // CHANGE 7: UPDATE FORM RESET LOGIC
     orderForm.addEventListener('reset', function() {
         document.getElementById('edit-order-id').value = '';
         orderForm.querySelector('.save-button').textContent = 'Add Order';
         document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+        const manualIdInput = document.getElementById('manual-order-id');
+        manualIdInput.value = '';
+        manualIdInput.disabled = false;
     });
 
-    // Navigation event listeners
     ordersTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
     adminTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('admin-page'); });
     backToOrders.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
     
-    // Check if a dedicated home link exists or use the new header image link
     const homeImageLink = document.querySelector('.nav-main a');
     if (homeImageLink) {
         homeImageLink.addEventListener('click', (e) => { 
@@ -1287,7 +1313,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Global click handler for dynamic elements
     document.body.addEventListener('click', (e) => {
         const target = e.target;
 
@@ -1315,7 +1340,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // CHANGE 3: "Buy It Again" now redirects to product link
         if (target.classList.contains('buy-again-btn')) {
             e.preventDefault();
             const order = orders.find(o => o.id === target.dataset.orderId);
@@ -1326,13 +1350,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // CHANGE 4: "Get Help" now redirects to the help page
         if (target.classList.contains('help-btn')) {
             e.preventDefault();
             window.open('https://www.amazon.in/gp/help/customer/display.html?nodeId=508510&ref_=nav_em_cs_help_0_1_1_37', '_blank');
         }
         
-        // Admin panel buttons
         if (target.classList.contains('edit-button')) {
             populateFormForEdit(parseInt(target.dataset.index));
         } else if (target.classList.contains('move-up-button')) {
