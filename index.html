@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Orders - FINAL PRESENTATION</title>
+<style>
+:root {
+--amazon-link-color: #007185; --amazon-text-color: #0F1111; --bg-color: #FFF;
+--grey-border-light: #DDD; --grey-border-dark: #D5D9D9; --amazon-yellow: #FFD814;
+--amazon-orange: #F08804; --amazon-dark: #131A22; --amazon-light-text: #565959;
+--amazon-secondary-dark: #232F3E; --success-green: #067D62;
+--amazon-dark-blue: #131A22; --amazon-light-blue: #232F3E; --amazon-yellow: #FFD814;
+--amazon-yellow-darker: #F7CA00; --amazon-text-dark: #0F1111; --amazon-text-white: #FFFFFF;
+--amazon-link-blue: #007185; --page-bg-grey: #EAEDED; --border-grey: #DDD;
+--card-bg-white: #FFFFFF; --balance-green: #007600; --error-red: #B12704;
+--success-green-bg: #F0FAF6; --success-green-border: #067D62;
+}
+body { font-family: "Amazon Ember", Arial, sans-serif; background-color: var(--bg-color); margin: 0; color: var(--amazon-text-color); font-size: 14px; }
+.container { max-width: 1050px; margin: 0 auto; padding: 10px 15px; }
+a { color: var(--amazon-link-color); text-decoration: none; }
+a:hover { text-decoration: underline; color: var(--amazon-orange); }
+
+/* Sticky Header */
+    .header {
+        background-color: var(--amazon-dark-blue);
+        color: var(--amazon-text-white);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Page Simulation */
+    .page { display: none; } .page.active { display: block; }
+    .page h1 { font-size: 28px; font-weight: 400; margin: 0 0 15px 0; }
+    .page .breadcrumb { font-size: 13px; margin-bottom: 5px; }
+
+    /* HEADER - FROM GIFT CARD PAGE */
+    .header a { color: var(--amazon-text-white); text-decoration: none; }
+    .nav-main { display: flex; align-items: center; padding: 2px 18px 2px 11px; }
+    .nav-item { padding: 8px 9px; margin: 0; border: 1px solid transparent; border-radius: 3px; display: flex; align-items: center; white-space: nowrap; cursor: pointer; }
+    .nav-item:hover { border-color: var(--amazon-text-white); }
+    
+    /* LOGO STYLES UPDATED */
+    #nav-logo {
+        height: 50px; /* Increased from 45px */
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+    }
+    #nav-logo .amazon-logo {
+        height: 100%;
+        width: auto;
+        display: block;
+    }
+
+    .location-icon { color: #cccccc; margin-right: 3px; margin-top: 12px; align-self: flex-start; }
+    .location-text .line-1 { font-size: 12px; color: #cccccc; line-height: 14px; }
+    .location-text .line-2 { font-weight: 700; line-height: 15px; }
+    
+    /* FIXED SEARCH BAR HEIGHT */
+    .nav-search {
+        flex-grow: 1;
+        display: flex;
+        height: 40px; /* Reduced from 50px */
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 10px;
+    }
+    
+    .nav-search:focus-within { box-shadow: 0 0 0 2px var(--amazon-yellow), 0 0 0 4px #c89411; }
+    .search-dropdown {
+        background-color: #f3f3f3;
+        border: none;
+        color: #555;
+        padding: 0 5px 0 12px;
+        font-size: 12px;
+        border-right: 1px solid #cdcdcd;
+        cursor: pointer;
+        height: 100%; /* Ensure full height */
+    }
+    .search-input {
+        width: 100%;
+        border: none;
+        font-size: 15px;
+        padding: 0 10px;
+        height: 100%; /* Ensure full height */
+    }
+    .search-input:focus { outline: none; }
+    .search-button {
+        background-color: var(--amazon-yellow);
+        border: none;
+        width: 45px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        height: 100%; /* Ensure full height */
+    }
+    .search-button:hover { background-color: var(--amazon-yellow-darker); }
+    .account-list { line-height: 1.1; }
+    .account-list .line-1 { font-size: 12px; }
+    .account-list .line-2 { font-weight: 700; display: flex; align-items: center; }
+    #nav-orders .line-2 { font-weight: 700; }
+    .nav-cart { display: flex; align-items: flex-end; position: relative; }
+    .nav-cart .cart-count { position: absolute; color: var(--amazon-yellow); font-weight: 700; font-size: 16px; top: 0px; left: 18px; }
+    .nav-cart .cart-text { font-weight: 700; margin-left: 5px; }
+
+    /* --- NAV BELT --- */
+    .nav-belt {
+        background-color: var(--amazon-light-blue);
+        color: var(--amazon-text-white);
+        padding: 0 11px;
+        display: flex;
+        align-items: center;
+        height: 39px;
+        position: sticky;
+        top: 60px; /* Height of main nav */
+        z-index: 999;
+    }
+    .nav-belt a { color: var(--amazon-text-white); text-decoration: none; padding: 5px 9px; border: 1px solid transparent; border-radius: 3px; font-size: 14px; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-belt a:hover { border-color: var(--amazon-text-white); }
+    .nav-belt a.all-menu { font-weight: 700; }
+    #rufus-link { background-color: #f7f8f8; color: var(--amazon-text-dark) !important; border-radius: 20px; font-weight: 700; padding: 3px 12px; margin: 0 5px; border: 1px solid var(--amazon-light-blue); }
+    #rufus-link:hover { border: 1px solid var(--amazon-light-blue); }
+    #rufus-link .rufus-dot { width: 10px; height: 10px; background: linear-gradient(135deg, #FF6600, #FFD100); border-radius: 50%; }
+    .arrow-down { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid #a7acb2; margin-top: 2px; margin-left: 4px; }
+
+    /* Side Menu */
+    #menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; }
+    #side-menu { position: fixed; top: 0; left: 0; width: 365px; max-width:85%; height: 100%; background: white; z-index: 2000; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+    #side-menu.active { transform: translateX(0); }
+    .side-menu-header { background-color: var(--amazon-secondary-dark); color: white; padding: 12px 25px; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+    .side-menu-content { padding: 20px 0; } .side-menu-content h3 { font-size: 16px; margin: 20px 0 10px 25px; }
+    .side-menu-content ul { list-style: none; padding: 0; margin: 0; } .side-menu-content ul li a { display: block; padding: 12px 25px; color: var(--amazon-text-color); font-size: 14px; }
+    .side-menu-content ul li a:hover { background-color: #f0f2f2; }
+    .side-menu-content hr { border: none; border-top: 1px solid #eee; margin: 10px 0; }
+    #close-menu-btn { position: absolute; top: 0; left: 100%; font-size: 36px; color: white; cursor: pointer; padding: 0 15px; }
+
+    /* Orders Control Section */
+    .orders-controls { margin-bottom: 20px; }
+    .order-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--grey-border-light); margin-bottom: 15px; }
+    .order-tabs { display: flex; list-style: none; padding: 0; margin: 0; }
+    .order-tabs li a { padding: 10px 15px; display: block; color: var(--amazon-text-color); border-bottom: 3px solid transparent; }
+    .order-tabs li.active a { font-weight: bold; border-bottom-color: var(--amazon-orange); }
+    .search-container { display: flex; align-items: center; gap: 10px; }
+    .search-container input { width: 250px; padding: 8px 10px; border: 1px solid var(--grey-border-dark); border-radius: 4px; }
+    .search-container button { background-color: var(--amazon-dark); color: white; padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; }
+    .filter-bar { display: flex; align-items: center; gap: 10px; }
+    .filter-bar select { padding: 5px; border: 1px solid var(--grey-border-dark); border-radius: 8px; background-color: #F0F2F2; }
+
+    /* Order Card */
+    .order-card { border: 1px solid var(--grey-border-dark); border-radius: 8px; margin-bottom: 20px; }
+    .order-card-header { background-color: #F0F2F2; padding: 12px 20px; border-bottom: 1px solid var(--grey-border-light); border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; font-size: 12px; color: var(--amazon-light-text); }
+    .order-card-body { padding: 20px; display: flex; gap: 20px; }
+    .product-image img { width: 90px; height: 90px; object-fit: contain; cursor: pointer; transition: transform 0.2s; }
+    .product-image img:hover { transform: scale(1.05); }
+    .product-info { flex-grow: 1; } .product-info h3 { font-size: 16px; margin: 0 0 5px 0; font-weight: 400; }
+    .order-card-actions { display: flex; flex-direction: column; gap: 10px; min-width: 180px; }
+    .amazon-button, .secondary-button { width: 100%; box-sizing: border-box; text-align: center; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; border: 1px solid; }
+    .amazon-button { background-color: var(--amazon-yellow); border-color: #a88734; }
+    .secondary-button { background-color: white; border-color: var(--grey-border-dark); }
+    footer.main-footer { padding: 30px; text-align: center; font-size: 12px; border-top: 1px solid #ddd; }
+    
+    /* MODIFICATION: Style for delivered order status */
+    .order-delivered .product-info p {
+        color: var(--success-green);
+        font-weight: bold;
+    }
+
+    /* Other Page Styles */
+    .invoice-box { border: 1px solid #ddd; border-radius: 8px; padding: 20px; font-size: 13px; margin-top: 15px; }
+    .invoice-footer { background-color: #37475A; color: white; padding: 15px 0; margin-top: 25px; text-align: center; }
+    
+    /* Enhanced Tracking Progress Bar */
+    .tracking-progress-bar { display: flex; justify-content: space-between; margin: 30px 0; padding: 0 5%; position: relative; }
+    .progress-line { content: ''; height: 4px; background-color: #e0e0e0; position: absolute; top: 15px; left: 10%; width: 80%; z-index: 1; border-radius: 2px; }
+    .progress-line-filled { height: 100%; background-color: var(--success-green); width: 0; transition: width 1.5s ease-out; border-radius: 2px; }
+    .progress-step { flex: 1; text-align: center; color: #888; font-size: 14px; position: relative; z-index: 2; }
+    .progress-step.completed { color: var(--success-green); font-weight: bold; }
+    .progress-step.active { color: var(--success-green); font-weight: bold; }
+    .progress-step::before { content: ''; width: 16px; height: 16px; background-color: white; border: 2px solid #e0e0e0; border-radius: 50%; display: block; margin: 0 auto 8px; position: relative; z-index: 3; box-sizing: border-box; }
+    .progress-step.completed::before { background-color: var(--success-green); border-color: var(--success-green); }
+    .progress-step.active::before { background-color: var(--success-green); border-color: var(--success-green); box-shadow: 0 0 0 3px rgba(6, 125, 98, 0.2); animation: pulse 1s infinite alternate; }
+
+    @keyframes pulse {
+        from { box-shadow: 0 0 0 3px rgba(6, 125, 98, 0.2); }
+        to { box-shadow: 0 0 0 6px rgba(6, 125, 98, 0.4); }
+    }
+    
+    .timeline { opacity: 0; animation: fadeIn 0.5s 0.5s forwards; }
+    .timeline-item { opacity: 0; animation: fadeInUp 0.5s forwards; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom:15px; }
+    .timeline-item:last-child { border-bottom: none; margin-bottom: 0; }
+    @keyframes fadeIn { to { opacity: 1; } } @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Enhanced Product Details Styles */
+    .product-details-large { text-align: center; margin: 20px 0; }
+    .product-details-large img { max-width: 300px; max-height: 300px; object-fit: contain; cursor: pointer; transition: transform 0.3s; }
+    .product-details-large img:hover { transform: scale(1.02); }
+    .product-specs { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; }
+    .product-specs h4 { margin-top: 0; color: var(--amazon-text-color); }
+    .product-specs-content { white-space: pre-wrap; } /* To respect newlines from textarea */
+
+
+    /* Admin Panel Styles */
+    .admin-panel { padding: 20px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 20px; }
+    .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .admin-form .form-group { display: flex; flex-direction: column; }
+    .admin-form .form-group label { margin-bottom: 5px; font-weight: bold; }
+    .admin-form .form-group input, .admin-form .form-group select, .admin-form .form-group textarea { padding: 8px; border: 1px solid var(--grey-border-dark); border-radius: 4px; }
+    .admin-form .form-group.full-width { grid-column: 1 / -1; }
+    .admin-form .form-group textarea { height: 80px; resize: vertical; }
+    .admin-buttons { display: flex; gap: 10px; margin-top: 15px; }
+    .admin-buttons button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+    .save-button { background-color: var(--success-green); color: white; }
+    .reset-button { background-color: #f0f2f2; color: var(--amazon-text-color); border: 1px solid var(--grey-border-dark) !important; }
+    .delete-button { background-color: #d72828; color: white; }
+    .edit-button { background-color: #007185; color: white; }
+    .move-up-button, .move-down-button { background-color: var(--amazon-orange); color: white; }
+    
+    /* Order Management */
+    .order-management { margin-top: 20px; }
+    .order-management h2 { margin-bottom: 15px; }
+    .order-list-admin { border: 1px solid var(--grey-border-dark); border-radius: 8px; background-color: white; }
+    .order-item-admin { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--grey-border-light); }
+    .order-item-admin:last-child { border-bottom: none; }
+    .order-item-admin img { width: 60px; height: 60px; object-fit: contain; margin-right: 15px; cursor: pointer; }
+    .order-item-info { flex-grow: 1; }
+    .order-item-info h4 { margin: 0 0 5px 0; }
+    .order-item-info p { margin: 2px 0; font-size: 13px; color: var(--amazon-light-text); }
+    .order-item-actions { display: flex; flex-direction: column; gap: 5px; }
+    .order-item-actions button { padding: 5px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
+
+    /* Loader Styles */
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.3s linear;
+    }
+    #loader-overlay.show {
+        visibility: visible;
+        opacity: 1;
+    }
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--amazon-orange);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* NEW: OTP Toggle Switch Styles */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: var(--success-green);
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    /* NEW: OTP and Review Section Styles */
+    .otp-section {
+        text-align: center;
+        padding: 40px 20px;
+        border: 1px solid var(--grey-border-light);
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    .otp-section h2 {
+        font-size: 24px;
+        color: var(--amazon-dark-blue);
+        margin: 0 0 10px 0;
+    }
+    .otp-section p {
+        font-size: 16px;
+        color: var(--amazon-light-text);
+        margin-bottom: 0; /* Adjusted margin */
+    }
+    .review-section {
+        margin-top: 30px;
+        text-align: left;
+    }
+    .review-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    .review-section textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--grey-border-dark);
+        border-radius: 4px;
+        min-height: 100px;
+        box-sizing: border-box;
+    }
+    .review-section .amazon-button {
+        width: auto;
+        padding: 10px 20px;
+        margin-top: 10px;
+    }
+    
+    /* NEW: Star Rating Styles */
+    .star-rating {
+        display: flex;
+        justify-content: center; /* Center the stars */
+        margin-bottom: 15px;
+    }
+    .star {
+        font-size: 36px; /* Make stars bigger */
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 0 5px; /* Add some space between stars */
+    }
+    .star:hover,
+    .star.hovered {
+        color: var(--amazon-yellow-darker);
+    }
+    .star.selected {
+        color: var(--amazon-yellow);
+    }
+    
+    /* MOBILE RESPONSIVE STYLES */
+    @media (max-width: 768px) {
+        .container { padding: 10px; }
+        .nav-item:nth-child(2), /* Hide Deliver to Rohit */
+        .nav-search, /* Hide search bar */
+        .nav-item:nth-child(4), /* Hide Account & Lists */
+        .nav-item:nth-child(5) /* Hide Returns & Orders (only show Cart for now) */ {
+            display: none;
+        }
+        .nav-main { justify-content: space-between; padding: 2px 10px; }
+        #nav-logo { height: 40px; padding: 0 5px; }
+        .nav-cart { padding: 8px 5px; }
+        .nav-cart .cart-count { top: -5px; left: 15px; font-size: 14px; }
+        .nav-cart .cart-text { display: none; } /* Hide cart text on mobile */
+
+        .nav-belt { justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .nav-belt a { padding: 5px 8px; font-size: 13px; }
+        #rufus-link { margin: 0 3px; padding: 3px 8px; }
+
+        .orders-controls { margin: 10px 0; }
+        .order-nav { flex-direction: column; align-items: stretch; gap: 15px; border: none; }
+        .search-container { order: -1; width: 100%; }
+        .search-container input { flex-grow: 1; }
+        .order-tabs { justify-content: space-around; width: 100%; border-bottom: 1px solid var(--grey-border-light); }
+        .order-tabs li a { padding: 10px 5px; }
+        .order-card-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+        .order-card-header .col-right { text-align: left; }
+        .order-card-body { flex-direction: column; }
+        .order-card-actions { flex-direction: row; margin-top: 15px; }
+        .invoice-box[style*="display: flex"] { flex-direction: column; }
+        .details-page-flex, #details-page .container > div[style*="display: flex"] { flex-direction: column; }
+        #close-menu-btn { display: none; }
+        .admin-form { grid-template-columns: 1fr; }
+        .order-item-admin { flex-direction: column; align-items: flex-start; }
+        .order-item-actions { margin-top: 10px; width: 100%; justify-content: space-between; flex-direction: row; }
+        .product-details-large img { max-width: 200px; max-height: 200px; }
+        
+        /* Mobile search bar adjustment - Re-enable for main page */
+        .header-main .nav-search {
+            display: flex; /* Show search bar in main header on mobile */
+            flex-grow: 1;
+            height: 35px; /* Slightly smaller on mobile */
+            margin: 0 5px;
+        }
+
+        /* Adjust tracking progress bar for smaller screens */
+        .tracking-progress-bar {
+            padding: 0 2%;
+            margin-top: 20px;
+        }
+        .progress-line {
+            left: 5%;
+            width: 90%;
+            top: 12px;
+        }
+        .progress-step {
+            font-size: 12px;
+        }
+        .progress-step::before {
+            width: 12px;
+            height: 12px;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+</head>
+<body>
+<div id="loader-overlay"><div class="loader"></div></div>
+
+<div id="menu-overlay"></div>
+<div id="side-menu">
+<span id="close-menu-btn">&times;</span>
+<div class="side-menu-header"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Hello, Admin</div>
+<div class="side-menu-content"><h3>Trending</h3><ul><li><a href="#">Bestsellers</a></li><li><a href="#">New Releases</a></li></ul><hr><h3>Digital Content and Devices</h3><ul><li><a href="#">Echo & Alexa</a></li><li><a href="#">Kindle E-readers & Books</a></li></ul><hr><h3>Shop by Category</h3><ul><li><a href="#">Mobiles, Computers</a></li><li><a href="#">Men's Fashion</a></li></ul></div>
+</div>
+<!-- HEADER FROM 1ST CODE -->
+<header class="header">
+    <div class="nav-main" style="padding: 0;">
+        <a href="index.html" style="display: block; width: 100%;">
+            <img src="https://ik.imagekit.io/goldencodes/Picsart_25-10-31_00-18-53-247.jpg?updatedAt=1761850176041" alt="Amazon Header" style="width: 100%; display: block; height: auto;">
+        </a>
+    </div>
+    <nav class="nav-belt">
+        <a href="#" class="all-menu"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path></svg>All</a>
+        <a href="#">Fresh</a>
+        <a href="#">Buy Again</a>
+        <a href="#">Amazon Pay</a>
+        <a href="#">Prime <span class="arrow-down"></span></a>
+        <a href="#">Keep Shopping for</a>
+        <a href="#">Today's Deals</a>
+        <a href="#">Mobiles</a>
+        <a href="#">Home Improvement</a>
+        <a href="gift.html">MX Player</a>
+        <a href="#">Sell</a>
+        <a href="api.html">Gift Cards</a>
+        <a href="#" class="history-dd">Browsing History <span class="arrow-down"></span></a>
+        <a href="#">rohit's Amazon.in</a>
+        <a href="#">Kindle eBooks</a>
+    </nav>
+</header>
+<main>
+<div id="orders-page" class="page active">
+<div class="container">
+<p class="breadcrumb"><a href="#">Your Account</a> &gt; <strong>Your Orders</strong></p>
+<h1>Your Orders</h1>
+<div class="orders-controls">
+<div class="order-nav">
+<ul class="order-tabs">
+<li class="active"><a href="#" id="orders-tab">Orders</a></li>
+<li><a href="#" id="admin-tab">Buy Again</a></li>
+<li><a href="#">Not Yet Shipped</a></li>
+</ul>
+<div class="search-container">
+<input type="text" placeholder="Search all orders">
+<button>Search Orders</button>
+</div>
+</div>
+<div class="filter-bar">
+<span><strong id="order-count">12 orders</strong> placed in</span>
+<select><option>past 3 months</option></select>
+</div>
+</div>
+<div id="order-list"></div>
+</div>
+</div>
+<div id="details-page" class="page"></div>
+<div id="invoice-page" class="page"></div>
+<div id="track-page" class="page"></div>
+<div id="admin-page" class="page">
+<div class="container">
+<p class="breadcrumb"><a href="#" id="back-to-orders">Your Orders</a> &gt; <strong>Buy Again</strong></p>
+<h1>Order Management</h1>
+<div class="admin-panel">
+            <h2>Add / Edit Order</h2>
+            <form id="order-form" class="admin-form">
+                <input type="hidden" id="edit-order-id" name="edit-order-id">
+                <div class="form-group">
+                    <label for="product-image">Product Image URL</label>
+                    <input type="url" id="product-image" name="product-image" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price</label>
+                    <input type="text" id="product-price" name="product-price" placeholder="e.g. 1,03,999.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="order-date">Order Date</label>
+                    <input type="date" id="order-date" name="order-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="delivery-status">Delivery Status Text</label>
+                    <!-- MODIFICATION: Added 'arriving-today' option -->
+                    <select id="delivery-status" name="delivery-status">
+                        <option value="arriving-today">Arriving Today</option>
+                        <option value="arriving-tomorrow">Arriving tomorrow</option>
+                        <option value="arriving-later">Arriving later</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="is-delivered">Is Delivered?</label>
+                    <select id="is-delivered" name="is-delivered">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="arrival-date">Arrival Date (if status is 'Arriving later')</label>
+                    <input type="date" id="arrival-date" name="arrival-date">
+                </div>
+                 <div class="form-group full-width">
+                    <label for="product-link">Product Link (URL)</label>
+                    <input type="url" id="product-link" name="product-link" placeholder="https://www.amazon.in/..." required>
+                </div>
+                 <div class="form-group full-width">
+                    <label for="tracking-link">External Tracking Link (URL)</label>
+                    <input type="url" id="tracking-link" name="tracking-link" placeholder="https://tracking.example.com/...">
+                </div>
+                <div class="form-group">
+                    <label for="use-external-tracking">Use External Tracking?</label>
+                    <select id="use-external-tracking" name="use-external-tracking">
+                        <option value="false">No (Use default page)</option>
+                        <option value="true">Yes (Redirect to external link)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-position">Order Position</label>
+                    <select id="order-position" name="order-position">
+                        <option value="top">Top of list</option>
+                        <option value="bottom">Bottom of list</option>
+                    </select>
+                </div>
+                 <div class="form-group full-width">
+                    <label for="shipping-address">Shipping Address</label>
+                    <textarea id="shipping-address" name="shipping-address" required></textarea>
+                </div>
+                <!-- CHANGE 1: Added textarea for product specs -->
+                <div class="form-group full-width">
+                    <label for="product-specs">Product Specifications</label>
+                    <textarea id="product-specs" name="product-specs" placeholder="Enter each spec on a new line..."></textarea>
+                </div>
+
+                <!-- NEW: OTP Toggle and Fill Box -->
+                <div class="form-group">
+                    <label for="otp-enabled">Enable OTP Verification</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="otp-enabled" name="otp-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="order-otp">Order OTP</label>
+                    <input type="text" id="order-otp" name="order-otp" placeholder="Enter 4-digit OTP">
+                </div>
+                
+                <div class="admin-buttons">
+                    <button type="submit" class="save-button">Add Order</button>
+                    <button type="reset" class="reset-button">Reset Form</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="order-management">
+            <h2>Manage Existing Orders</h2>
+            <div id="order-list-admin" class="order-list-admin">
+                <!-- Orders will be populated here by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+<footer class="main-footer">© 1996-2025, Amazon.com, Inc. or its affiliates</footer>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const LOCAL_STORAGE_KEY = 'amazonOrders';
+    let orders = [];
+
+    const pages = document.querySelectorAll('.page'),
+        orderListContainer = document.getElementById('order-list'),
+        orderListAdminContainer = document.getElementById('order-list-admin'),
+        orderForm = document.getElementById('order-form'),
+        ordersTab = document.getElementById('orders-tab'),
+        adminTab = document.getElementById('admin-tab'),
+        backToOrders = document.getElementById('back-to-orders'),
+        homeLink = document.getElementById('nav-logo'),
+        loaderOverlay = document.getElementById('loader-overlay');
+
+    // Show/Hide Loader
+    function showLoader() {
+        loaderOverlay.classList.add('show');
+    }
+
+    function hideLoader() {
+        loaderOverlay.classList.remove('show');
+    }
+
+    // Load orders from Local Storage
+    function loadOrders() {
+        const storedOrders = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (storedOrders) {
+            orders = JSON.parse(storedOrders);
+        } else {
+            // Default orders if local storage is empty
+            orders = [
+                {
+                    id: '403-864435434543-216897544',
+                    date: '22 October 2025',
+                    total: '₹ 1,74,990',
+                    isDelivered: true,
+                    status: 'Delivered',
+                    product: 'iPhone 17 Pro Max 1TB',
+                    img: 'https://ik.imagekit.io/goldencodes/71JGCn1z1TL._SX679_.jpg?updatedAt=1760897737326',
+                    address: 'Gaurav Photo Studio Near Nagar Nigam Office Gandhi Nagar Bhopal MP 462036',
+                    productLink: 'https://amzn.in/d/98PxqU1',
+                    trackingLink: '',
+                    useExternalTracking: false,
+                    specs: 'Display: 6.9-inch Super Retina XDR display with ProMotion\nChip: A19 Bionic chip\nCamera: Pro camera system with 64MP Main, Ultra Wide, and Telephoto lenses\nStorage: 1TB\nOS: iOS 19',
+                    otpEnabled: false,
+                    otp: ''
+                },
+                {
+                    id: '403-864645543-2167987498734',
+                    date: '21 October 2025',
+                    total: '₹ 92,999',
+                    isDelivered: true,
+                    status: 'Delivered',
+                    product: 'Nikon Z50 Mirrorless Camera',
+                    img: 'https://ik.imagekit.io/goldencodes/61rBVhRqMPL._AC_UY327_FMwebp_QL65_.webp?updatedAt=1761038024724',
+                    address: 'Vs s palli friends club , sector 7 , Rourkela,769003',
+                    productLink: 'https://amzn.in/d/6FRoVqd',
+                    trackingLink: '',
+                    useExternalTracking: false,
+                    specs: 'Sensor: 20.9MP DX-Format CMOS Sensor\nProcessor: EXPEED 6 Image Processor\nVideo: UHD 4K and Full HD Video Recording\nISO: 100-51200\nAutofocus: 209-Point Hybrid AF with Eye Detection',
+                    otpEnabled: false,
+                    otp: ''
+                },
+                // ... other default orders ...
+                {
+                    id: '403-1122334-5566778',
+                    date: '18 October 2025',
+                    total: '₹3,49,900.00',
+                    isDelivered: false,
+                    status: 'Arriving tomorrow',
+                    product: 'MacBook Pro M4 1TB',
+                    img: 'https://ik.imagekit.io/goldencodes/download.avif?updatedAt=1760761821186',
+                    address: 'Chandni Chowk, Gali No. 12, Delhi, 110006, India',
+                    productLink: 'https://www.amazon.in/dp/B0FDL3VZR8',
+                    trackingLink: 'https://www.bluedart.com/tracking?awb=123456789',
+                    useExternalTracking: true,
+                    specs: 'Chip: Apple M4 Pro\nMemory: 32GB unified memory\nStorage: 1TB SSD\nDisplay: 16.2-inch Liquid Retina XDR display\nPorts: Three Thunderbolt 4 ports, HDMI port, SDXC card slot, MagSafe 3 port',
+                    otpEnabled: false,
+                    otp: ''
+                },
+                {
+                    id: '403-1234567-8901234',
+                    date: '12 October 2025',
+                    total: '₹74,999.00',
+                    isDelivered: true,
+                    status: 'Delivered',
+                    product: 'Apple iPhone 15 (512GB) - White',
+                    img: 'https://ik.imagekit.io/goldencodes/71d7rfSl0wL._SX679_.jpg?updatedAt=1760762221974',
+                    address: 'Chandni Chowk, Gali No. 12, Delhi, 110006, India',
+                    productLink: 'https://amzn.in/d/4RDDV1y',
+                    trackingLink: '',
+                    useExternalTracking: false,
+                    specs: 'Display: 6.1-inch Super Retina XDR display\nChip: A16 Bionic chip\nCamera: Advanced dual-camera system with 48MP Main\nStorage: 512GB\nFeature: Dynamic Island',
+                    otpEnabled: false,
+                    otp: ''
+                }
+            ];
+            saveOrders(); // Save default orders to local storage if it was empty
+        }
+    }
+
+    // Save orders to Local Storage
+    function saveOrders() {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(orders));
+    }
+
+    // Generate a unique order ID
+    function generateOrderId() {
+        const prefix = '403-';
+        const random1 = Math.floor(1000000 + Math.random() * 9000000);
+        const random2 = Math.floor(1000000 + Math.random() * 9000000);
+        return `${prefix}${random1}-${random2}`;
+    }
+
+    // Format date to display format (e.g., "22 October 2025")
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        // Add timeZone to prevent one-day-off issues with toLocaleDateString
+        const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' };
+        return date.toLocaleDateString('en-IN', options);
+    }
+    
+    // Format date for input[type="date"]
+    function formatDateForInput(dateString) {
+        if (!dateString) return new Date().toISOString().split('T')[0];
+        const date = parseOrderDate(dateString);
+        return date.toISOString().split('T')[0];
+    }
+
+
+    // Parse date from display format to Date object
+    function parseOrderDate(dateString) {
+        if (!dateString) return new Date(); // Fallback
+        
+        // CHANGE 5: Fixed the date parsing to use UTC, preventing timezone shifts.
+        const months = {
+            'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+            'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+        };
+
+        const parts = dateString.split(' ');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = months[parts[1]];
+            const year = parseInt(parts[2], 10);
+            if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                return new Date(Date.UTC(year, month, day));
+            }
+        }
+        
+        // Fallback for ISO strings etc., ensuring it's treated as UTC.
+        const fallbackDate = new Date(dateString);
+        return new Date(Date.UTC(fallbackDate.getFullYear(), fallbackDate.getMonth(), fallbackDate.getDate()));
+    }
+
+    // Calculate tracking progress based on order status and current date
+    function calculateTrackingProgress(order) {
+        let progress = 0;
+        if(order.isDelivered) return 100;
+
+        // Simplified logic for progress
+        const status = order.status.toLowerCase();
+        if (status.includes('delivered')) return 100;
+        if (status.includes('out for delivery')) return 75;
+        if (status.includes('arriving tomorrow')) return 60;
+        if (status.includes('shipped')) return 50;
+        if (status.includes('arriving')) return 40;
+        
+        return 25; // Default for 'Ordered'
+    }
+
+
+    // Navigate between pages with a loader
+    function navigateTo(pageId, order = null) {
+        showLoader();
+        setTimeout(() => {
+            pages.forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+
+            // Update active tab
+            document.querySelectorAll('.order-tabs li').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            if (pageId === 'orders-page') {
+                document.querySelector('.order-tabs li:first-child').classList.add('active');
+                renderOrderList();
+            } else if (pageId === 'admin-page') {
+                document.querySelector('.order-tabs li:nth-child(2)').classList.add('active');
+                renderAdminOrderList();
+            }
+
+            let content = '';
+            if (pageId !== 'orders-page' && pageId !== 'admin-page') {
+                switch(pageId) {
+                    case 'details-page':
+                        // CHANGE 1 & 2: Added custom specs and track button
+                        const specsContent = order.specs ? `<div class="product-specs-content">${order.specs}</div>` : `<p>• High-performance device with latest technology</p><p>• Premium build quality and design</p>`;
+                        content = `
+                            <div class="container">
+                                <p class="breadcrumb"><a href="#" class="go-back">Your Orders</a> &gt; <strong>Order Details</strong></p>
+                                <h1>Order Details</h1>
+                                <p>Ordered on ${order.date} | Order# ${order.id}</p>
+
+                                <div class="product-details-large">
+                                    <a href="${order.productLink}" target="_blank">
+                                        <img src="${order.img}" alt="${order.product}">
+                                    </a>
+                                    <h2>${order.product}</h2>
+                                    <button class="amazon-button track-btn" data-order-id="${order.id}" style="width: auto; padding: 8px 20px; margin-bottom: 10px;">Track your order</button>
+                                    <p><strong>Total:</strong> ${order.total}</p>
+                                </div>
+
+                                <div class="product-specs">
+                                    <h4>Product Specifications</h4>
+                                    ${specsContent}
+                                </div>
+
+                                <div class="details-page-flex" style="display:flex; gap:20px; margin-top: 20px;">
+                                    <div style="flex:2; display:flex; flex-direction:column; gap:20px;">
+                                        <div class="invoice-box">
+                                            <h4>Shipping Address</h4>
+                                            <p>${order.address}</p>
+                                        </div>
+                                        <div class="invoice-box">
+                                            <h4>Payment Method</h4>
+                                            <p>Amazon Gift Card</p>
+                                        </div>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <div class="invoice-box">
+                                            <h4>Order Summary</h4>
+                                            <div style="display:flex; justify-content:space-between;"><span>Item(s):</span> <span>${order.total}</span></div>
+                                            <hr style="border:none;border-top:1px solid #eee;margin:10px 0;">
+                                            <div style="display:flex; justify-content:space-between;font-weight:bold;"><span>Grand Total:</span> <span>${order.total}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        break;
+                    case 'invoice-page':
+                        content = `<div class="container"><p class="breadcrumb" style="margin-bottom:20px;"><a href="#" class="go-back">&lt; Your Orders</a></p><button class="print-btn">Print</button><h1>Order Summary</h1><p style="font-size:13px; color: #555;">Order placed ${order.date} &nbsp;|&nbsp; Order number ${order.id}</p><div class="invoice-box" style="display: flex; gap: 20px;"><div style="flex: 1.5;"><h4>Ship to</h4><p>${order.address}</p></div><div style="flex: 1.5;"><h4>Payment Methods</h4><p>Amazon Gift Card</p></div><div style="flex: 1;"><h4>Order Summary</h4><div style="display:flex; justify-content:space-between;"><span>Item(s) Subtotal:</span> <span>${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between;"><span>Total:</span> <span>${order.total}</span></div><div style="display:flex; justify-content:space-between;"><span>Voucher:</span> <span>-${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Grand Total:</span> <span>₹0.00</span></div></div></div><div class="invoice-box" style="margin-top:20px;"><h4 style="font-weight: bold; margin: 0 0 15px 0;">${order.status}</h4><div style="display: flex; align-items: center; gap: 15px;"><a href="${order.productLink}" target="_blank"><img src="${order.img}" style="width:60px; height:60px; object-fit:contain;"></a><div><a href="${order.productLink}" target="_blank" style="font-weight:bold;">${order.product}</a><p style="margin:5px 0;">Sold by: Amazon Retail</p><p style="font-weight:bold; color: #B12704;">${order.total}</p></div></div></div></div><footer class="invoice-footer"><a href="#" style="font-size:13px; display:block; padding:10px; background:#485769;">Back to top</a><div style="padding:20px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" style="filter: brightness(0) invert(1); height:30px; margin-bottom:15px;" alt="Amazon"><div style="font-size:11px; display:flex; justify-content:center; gap: 20px;"><a href="#">Conditions of Use & Sale</a><a href="#">Privacy Notice</a></div><p style="font-size:11px; color:#ddd; margin-top:5px;">© 1996-2025, Amazon.com, Inc. or its affiliates</p></div></footer>`;
+                        break;
+                    case 'track-page':
+                        if (order.otpEnabled && order.otp) {
+                            // NEW: OTP View with all requested changes
+                            content = `
+                                <div class="container">
+                                    <p class="breadcrumb"><a href="#" class="go-back">&lt; Your Orders</a> &gt; <strong>Tracking</strong></p>
+                                    
+                                    <div class="invoice-box" style="display:flex; align-items:center; gap:20px; margin-bottom: 20px;">
+                                        <a href="${order.productLink}" target="_blank">
+                                            <img src="${order.img}" style="width:80px; height:80px; object-fit:contain;">
+                                        </a>
+                                        <div>
+                                            <h3 style="font-weight:400; margin:0 0 5px 0;">${order.product}</h3>
+                                            <p>Your package is ready for delivery.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="otp-section">
+                                        <h2>OTP: ${order.otp}</h2>
+                                        <p>This is your OTP. Check your package before giving the OTP to the delivery boy.</p>
+                                        <p style="color: var(--success-green); font-weight: bold; margin-top: 15px;">This package is prepaid by Amazon gift card</p>
+                                    </div>
+                                    
+                                    <div class="invoice-box" style="margin-top: 20px;">
+                                        <h4>Shipping Address</h4>
+                                        <p>${order.address}</p>
+                                    </div>
+
+                                    <div class="review-section" style="text-align: center; margin-top: 30px; border: 1px solid var(--grey-border-light); border-radius: 8px; padding: 20px;">
+                                        <h3>Rate your delivery experience</h3>
+                                        <div class="star-rating" data-rating="0">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                        <textarea placeholder="Tell us more about your experience..." style="margin-top: 15px; width: 100%; box-sizing: border-box; min-height: 80px; padding: 10px; border: 1px solid var(--grey-border-dark); border-radius: 4px;"></textarea>
+                                        <button class="amazon-button" style="margin-top: 10px;">Submit Review</button>
+                                    </div>
+                                </div>`;
+                        } else {
+                            // Original Tracking View
+                            content = `
+                                <div class="container">
+                                    <p class="breadcrumb"><a href="#" class="go-back">&lt; Your Orders</a> &gt; <strong>Tracking</strong></p>
+                                    <h1>${order.status}</h1>
+                                    <div class="invoice-box" style="display:flex; align-items:center; gap:20px;">
+                                        <a href="${order.productLink}" target="_blank">
+                                            <img src="${order.img}" style="width:80px; height:80px; object-fit:contain;">
+                                        </a>
+                                        <div>
+                                            <h3 style="font-weight:400; margin:0 0 5px 0;">${order.product}</h3>
+                                            <p>Track your package in real-time</p>
+                                        </div>
+                                    </div>
+    
+                                    <div class="tracking-progress-bar">
+                                        <div class="progress-line">
+                                            <div class="progress-line-filled" style="width: 0;"></div> 
+                                        </div>
+                                        <div class="progress-step">Ordered</div>
+                                        <div class="progress-step">Shipped</div>
+                                        <div class="progress-step">Out for Delivery</div>
+                                        <div class="progress-step">Delivered</div>
+                                    </div>
+    
+                                    <div class="timeline">
+                                        <div class="timeline-item" style="animation-delay: 0.6s;">
+                                            <p><strong>Today, your order is Confirmed</strong><br>Package will be out for delivery soon - DELHI_HUB, IN</p>
+                                        </div>
+                                        <div class="timeline-item" style="animation-delay: 0.8s;">
+                                            <p><strong>Yesterday, 9:15 PM</strong><br>Package has left the carrier facility - BHIWANDI, IN</p>
+                                        </div>
+                                        <div class="timeline-item" style="animation-delay: 1.0s;">
+                                            <p><strong>${order.date}, </strong><br>Order confirmed via Amazon Gift card </p>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        }
+                        break;
+                }
+                targetPage.innerHTML = content;
+
+                if (pageId === 'track-page') {
+                    // Check if it's the OTP view to add star rating logic
+                    if (order.otpEnabled && order.otp) {
+                        const starRatingContainer = targetPage.querySelector('.star-rating');
+                        const stars = starRatingContainer.querySelectorAll('.star');
+
+                        const highlightStars = (rating) => {
+                            stars.forEach(star => {
+                                star.classList.remove('hovered');
+                                if (parseInt(star.dataset.value) <= rating) {
+                                    star.classList.add('hovered');
+                                }
+                            });
+                        };
+
+                        const setRating = (rating) => {
+                             stars.forEach(star => {
+                                star.classList.remove('selected', 'hovered');
+                                if (parseInt(star.dataset.value) <= rating) {
+                                    star.classList.add('selected');
+                                }
+                            });
+                        };
+
+                        starRatingContainer.addEventListener('mouseover', e => {
+                            if (e.target.classList.contains('star')) {
+                                highlightStars(parseInt(e.target.dataset.value));
+                            }
+                        });
+
+                        starRatingContainer.addEventListener('mouseout', () => {
+                             const currentRating = parseInt(starRatingContainer.dataset.rating);
+                             highlightStars(0); // Clear hover effect
+                             setRating(currentRating); // Keep selected stars colored
+                        });
+
+                        starRatingContainer.addEventListener('click', e => {
+                            if (e.target.classList.contains('star')) {
+                                const rating = parseInt(e.target.dataset.value);
+                                starRatingContainer.dataset.rating = rating;
+                                setRating(rating);
+                            }
+                        });
+                    } else { // It's the normal tracking view, so run the progress bar logic
+                        const progressPercentage = calculateTrackingProgress(order);
+                        const progressBarFilled = targetPage.querySelector('.progress-line-filled');
+                        const progressSteps = targetPage.querySelectorAll('.progress-step');
+                        
+                        if (progressPercentage >= 0) progressSteps[0].classList.add('completed');
+                        if (progressPercentage >= 25) progressSteps[1].classList.add('completed');
+                        if (progressPercentage >= 75) progressSteps[2].classList.add('completed');
+                        if (progressPercentage >= 100) progressSteps[3].classList.add('completed');
+                        
+                        requestAnimationFrame(() => {
+                            progressBarFilled.style.width = `${progressPercentage}%`;
+                        });
+                    }
+                }
+
+                const goBackLinks = targetPage.querySelectorAll('.go-back');
+                goBackLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navigateTo('orders-page');
+                    });
+                });
+            }
+            targetPage.classList.add('active');
+            window.scrollTo(0, 0);
+            hideLoader(); 
+        }, 500); 
+    }
+
+    function renderOrderList() {
+        orderListContainer.innerHTML = '';
+        orders.forEach(order => {
+            let actionsHTML = order.isDelivered ?
+                `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>
+                <button class="secondary-button help-btn" data-order-id="${order.id}">Get help</button>` :
+                `<button class="amazon-button track-btn" data-order-id="${order.id}">Track package</button>`;
+            
+            const deliveredClass = order.isDelivered ? 'order-delivered' : '';
+
+            orderListContainer.insertAdjacentHTML('beforeend',
+                `<div class="order-card ${deliveredClass}">
+                    <div class="order-card-header">
+                        <div class="col">
+                            <div><span>ORDER PLACED</span>${order.date}</div>
+                            <div><span>TOTAL</span>${order.total}</div>
+                        </div>
+                        <div class="col-right">
+                            <span>ORDER # ${order.id}</span>
+                            <div>
+                                <a href="#" class="details-link" data-order-id="${order.id}">View order details</a><br>
+                                <a href="#" class="invoice-link" data-order-id="${order.id}">Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-card-body">
+                        <div class="product-image">
+                            <a href="${order.productLink}" target="_blank">
+                                <img src="${order.img}" alt="${order.product}">
+                            </a>
+                        </div>
+                        <div class="product-info">
+                            <h3>${order.product}</h3>
+                            <p>${order.status}</p>
+                        </div>
+                        <div class="order-card-actions">${actionsHTML}</div>
+                    </div>
+                </div>`);
+        });
+
+        document.getElementById('order-count').textContent = `${orders.length} orders`;
+    }
+
+    function renderAdminOrderList() {
+        orderListAdminContainer.innerHTML = '';
+
+        if (orders.length === 0) {
+            orderListAdminContainer.innerHTML = '<p style="padding: 20px; text-align: center;">No orders to display</p>';
+            return;
+        }
+
+        orders.forEach((order, index) => {
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item-admin';
+            orderItem.innerHTML = `
+                <a href="${order.productLink}" target="_blank">
+                    <img src="${order.img}" alt="${order.product}">
+                </a>
+                <div class="order-item-info">
+                    <h4>${order.product}</h4>
+                    <p><strong>Order ID:</strong> ${order.id}</p>
+                    <p><strong>Date:</strong> ${order.date}</p>
+                    <p><strong>External Tracking:</strong> ${order.useExternalTracking ? 'Yes' : 'No'}</p>
+                </div>
+                <div class="order-item-actions">
+                    <button class="edit-button" data-index="${index}">Edit</button>
+                    <button class="move-up-button" data-index="${index}" ${index === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="move-down-button" data-index="${index}" ${index === orders.length - 1 ? 'disabled' : ''}>↓</button>
+                    <button class="delete-button" data-index="${index}">Delete</button>
+                </div>
+            `;
+            orderListAdminContainer.appendChild(orderItem);
+        });
+    }
+    
+    function getStatusText() {
+        const deliveryStatus = document.getElementById('delivery-status').value;
+        let status = '';
+        switch(deliveryStatus) {
+            case 'arriving-today': status = 'Arriving Today'; break;
+            case 'arriving-tomorrow': status = 'Arriving tomorrow'; break;
+            case 'arriving-later':
+                const arrivalDateInput = document.getElementById('arrival-date').value;
+                const formattedArrivalDate = arrivalDateInput ? formatDate(arrivalDateInput) : 'a future date';
+                status = `Arriving ${formattedArrivalDate}`;
+                break;
+            case 'delivered': status = 'Delivered'; break;
+            case 'shipped': status = 'Shipped'; break;
+        }
+        return status;
+    }
+
+    function handleFormSubmit() {
+        const editOrderId = document.getElementById('edit-order-id').value;
+        if (editOrderId) {
+            updateOrder(editOrderId);
+        } else {
+            addNewOrder();
+        }
+    }
+
+    function addNewOrder() {
+        const newOrder = {
+            id: generateOrderId(),
+            date: formatDate(document.getElementById('order-date').value),
+            total: document.getElementById('product-price').value,
+            isDelivered: document.getElementById('is-delivered').value === 'true',
+            status: getStatusText(),
+            product: document.getElementById('product-name').value,
+            img: document.getElementById('product-image').value,
+            address: document.getElementById('shipping-address').value,
+            productLink: document.getElementById('product-link').value,
+            trackingLink: document.getElementById('tracking-link').value,
+            useExternalTracking: document.getElementById('use-external-tracking').value === 'true',
+            specs: document.getElementById('product-specs').value, // CHANGE 1: Save specs
+            otpEnabled: document.getElementById('otp-enabled').checked,
+            otp: document.getElementById('order-otp').value
+        };
+
+        const orderPosition = document.getElementById('order-position').value;
+        if (orderPosition === 'top') {
+            orders.unshift(newOrder);
+        } else {
+            orders.push(newOrder);
+        }
+
+        saveOrders();
+        renderOrderList();
+        renderAdminOrderList();
+
+        alert('Order added successfully!');
+        orderForm.reset();
+        document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function updateOrder(orderId) {
+        const orderIndex = orders.findIndex(o => o.id === orderId);
+        if (orderIndex === -1) return;
+
+        orders[orderIndex] = {
+            ...orders[orderIndex], // Keep the original ID
+            date: formatDate(document.getElementById('order-date').value),
+            total: document.getElementById('product-price').value,
+            isDelivered: document.getElementById('is-delivered').value === 'true',
+            status: getStatusText(),
+            product: document.getElementById('product-name').value,
+            img: document.getElementById('product-image').value,
+            address: document.getElementById('shipping-address').value,
+            productLink: document.getElementById('product-link').value,
+            trackingLink: document.getElementById('tracking-link').value,
+            useExternalTracking: document.getElementById('use-external-tracking').value === 'true',
+            specs: document.getElementById('product-specs').value, // CHANGE 1: Update specs
+            otpEnabled: document.getElementById('otp-enabled').checked,
+            otp: document.getElementById('order-otp').value
+        };
+
+        saveOrders();
+        renderOrderList();
+        renderAdminOrderList();
+
+        alert('Order updated successfully!');
+        orderForm.reset();
+        document.getElementById('edit-order-id').value = '';
+        orderForm.querySelector('.save-button').textContent = 'Add Order';
+        document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+    }
+    
+    function populateFormForEdit(index) {
+        const order = orders[index];
+        if (!order) return;
+
+        document.getElementById('edit-order-id').value = order.id;
+        document.getElementById('product-image').value = order.img;
+        document.getElementById('product-name').value = order.product;
+        document.getElementById('product-price').value = order.total;
+        document.getElementById('order-date').value = formatDateForInput(order.date);
+        document.getElementById('is-delivered').value = String(order.isDelivered);
+        document.getElementById('shipping-address').value = order.address;
+        document.getElementById('product-link').value = order.productLink;
+        document.getElementById('tracking-link').value = order.trackingLink || '';
+        document.getElementById('use-external-tracking').value = String(order.useExternalTracking);
+        document.getElementById('product-specs').value = order.specs || ''; // CHANGE 1: Populate specs textarea
+        document.getElementById('otp-enabled').checked = order.otpEnabled || false;
+        document.getElementById('order-otp').value = order.otp || '';
+
+        const status = order.status.toLowerCase();
+        if (status.includes('arriving today')) {
+             document.getElementById('delivery-status').value = 'arriving-today';
+        } else if (status.includes('arriving tomorrow')) {
+             document.getElementById('delivery-status').value = 'arriving-tomorrow';
+        } else if (status.includes('arriving')) {
+             document.getElementById('delivery-status').value = 'arriving-later';
+        } else if (status.includes('shipped')) {
+             document.getElementById('delivery-status').value = 'shipped';
+        } else if (status.includes('delivered')) {
+             document.getElementById('delivery-status').value = 'delivered';
+        }
+        
+        orderForm.querySelector('.save-button').textContent = 'Update Order';
+        orderForm.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function moveOrderUp(index) {
+        if (index > 0) {
+            [orders[index], orders[index - 1]] = [orders[index - 1], orders[index]];
+            saveOrders();
+            renderOrderList();
+            renderAdminOrderList();
+        }
+    }
+
+    function moveOrderDown(index) {
+        if (index < orders.length - 1) {
+            [orders[index], orders[index + 1]] = [orders[index + 1], orders[index]];
+            saveOrders();
+            renderOrderList();
+            renderAdminOrderList();
+        }
+    }
+
+    function deleteOrder(index) {
+        if (confirm('Are you sure you want to delete this order?')) {
+            orders.splice(index, 1);
+            saveOrders();
+            renderOrderList();
+            renderAdminOrderList();
+        }
+    }
+
+    function init() {
+        loadOrders();
+        renderOrderList();
+        renderAdminOrderList();
+        document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    init();
+
+    // Side menu functionality
+    const allMenuBtn = document.querySelector('.all-menu'),
+        sideMenu = document.getElementById('side-menu'),
+        overlay = document.getElementById('menu-overlay'),
+        closeMenuBtn = document.getElementById('close-menu-btn');
+
+    function closeSideMenu() {
+        sideMenu.classList.remove('active');
+        overlay.style.display = 'none';
+    }
+
+    allMenuBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        sideMenu.classList.add('active');
+        overlay.style.display = 'block';
+    });
+
+    closeMenuBtn.addEventListener('click', closeSideMenu);
+    overlay.addEventListener('click', closeSideMenu);
+
+    orderForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleFormSubmit();
+    });
+    
+    orderForm.addEventListener('reset', function() {
+        document.getElementById('edit-order-id').value = '';
+        orderForm.querySelector('.save-button').textContent = 'Add Order';
+        document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+    });
+
+    // Navigation event listeners
+    ordersTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
+    adminTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('admin-page'); });
+    backToOrders.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
+    
+    // Check if a dedicated home link exists or use the new header image link
+    const homeImageLink = document.querySelector('.nav-main a');
+    if (homeImageLink) {
+        homeImageLink.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            navigateTo('orders-page'); 
+        });
+    }
+
+
+    // Global click handler for dynamic elements
+    document.body.addEventListener('click', (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('details-link')) {
+            e.preventDefault();
+            const order = orders.find(o => o.id === target.dataset.orderId);
+            if (order) navigateTo('details-page', order);
+        }
+
+        if (target.classList.contains('invoice-link')) {
+            e.preventDefault();
+            const order = orders.find(o => o.id === target.dataset.orderId);
+            if (order) navigateTo('invoice-page', order);
+        }
+
+        if (target.classList.contains('track-btn')) {
+            e.preventDefault();
+            const order = orders.find(o => o.id === target.dataset.orderId);
+            if (order) {
+                if (order.useExternalTracking && order.trackingLink) {
+                    window.open(order.trackingLink, '_blank');
+                } else {
+                    navigateTo('track-page', order);
+                }
+            }
+        }
+
+        // CHANGE 3: "Buy It Again" now redirects to product link
+        if (target.classList.contains('buy-again-btn')) {
+            e.preventDefault();
+            const order = orders.find(o => o.id === target.dataset.orderId);
+            if (order && order.productLink) {
+                window.open(order.productLink, '_blank');
+            } else {
+                alert('Product link is not available for this order.');
+            }
+        }
+
+        // CHANGE 4: "Get Help" now redirects to the help page
+        if (target.classList.contains('help-btn')) {
+            e.preventDefault();
+            window.open('https://www.amazon.in/gp/help/customer/display.html?nodeId=508510&ref_=nav_em_cs_help_0_1_1_37', '_blank');
+        }
+        
+        // Admin panel buttons
+        if (target.classList.contains('edit-button')) {
+            populateFormForEdit(parseInt(target.dataset.index));
+        } else if (target.classList.contains('move-up-button')) {
+            moveOrderUp(parseInt(target.dataset.index));
+        } else if (target.classList.contains('move-down-button')) {
+            moveOrderDown(parseInt(target.dataset.index));
+        } else if (target.classList.contains('delete-button')) {
+            deleteOrder(parseInt(target.dataset.index));
+        }
+    });
+});
+</script>
+</body>
+</html>
