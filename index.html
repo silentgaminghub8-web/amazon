@@ -161,6 +161,7 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
     .amazon-button, .secondary-button { width: 100%; box-sizing: border-box; text-align: center; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; border: 1px solid; }
     .amazon-button { background-color: var(--amazon-yellow); border-color: #a88734; }
     .secondary-button { background-color: white; border-color: var(--grey-border-dark); }
+    .secondary-button:hover { background-color: #f7f7f7; }
     footer.main-footer { padding: 30px; text-align: center; font-size: 12px; border-top: 1px solid #ddd; }
     
     /* MODIFICATION: Style for delivered order status */
@@ -195,9 +196,31 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
     @keyframes fadeIn { to { opacity: 1; } } @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Enhanced Product Details Styles */
-    .product-details-large { text-align: center; margin: 20px 0; }
-    .product-details-large img { max-width: 300px; max-height: 300px; object-fit: contain; cursor: pointer; transition: transform 0.3s; }
-    .product-details-large img:hover { transform: scale(1.02); }
+    /* FEATURE 3: Styles for new layout */
+    .product-details-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        text-align: left;
+        margin: 20px 0;
+    }
+    .product-details-image {
+        flex-shrink: 0;
+    }
+    .product-details-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .product-details-info h2 {
+        margin: 0;
+    }
+    .product-details-info p {
+        margin: 0;
+        font-size: 18px;
+    }
+    .product-details-image img { max-width: 250px; max-height: 250px; object-fit: contain; cursor: pointer; transition: transform 0.3s; }
+    .product-details-image img:hover { transform: scale(1.02); }
     .product-specs { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; }
     .product-specs h4 { margin-top: 0; color: var(--amazon-text-color); }
     .product-specs-content { white-space: pre-wrap; } /* To respect newlines from textarea */
@@ -429,6 +452,15 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
             height: 12px;
             margin-bottom: 5px;
         }
+        /* FEATURE 3: Mobile styles for new layout */
+        .product-details-container {
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+        .product-details-info {
+             align-items: center;
+        }
     }
 </style>
 </head>
@@ -450,20 +482,16 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
     </div>
     <nav class="nav-belt">
         <a href="#" class="all-menu"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path></svg>All</a>
+        <!-- FEATURE 1: Removed Cancelled Orders button -->
         <a href="#">Fresh</a>
         <a href="#">Buy Again</a>
         <a href="#">Amazon Pay</a>
         <a href="#">Prime <span class="arrow-down"></span></a>
-        <a href="#">Keep Shopping for</a>
         <a href="#">Today's Deals</a>
         <a href="#">Mobiles</a>
-        <a href="#">Home Improvement</a>
         <a href="gift.html">MX Player</a>
         <a href="#">Sell</a>
         <a href="api.html">Gift Cards</a>
-        <a href="#" class="history-dd">Browsing History <span class="arrow-down"></span></a>
-        <a href="#">rohit's Amazon.in</a>
-        <a href="#">Kindle eBooks</a>
     </nav>
 </header>
 <main>
@@ -476,7 +504,7 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
 <ul class="order-tabs">
 <li class="active"><a href="#" id="orders-tab">Orders</a></li>
 <li><a href="#" id="admin-tab">Buy Again</a></li>
-<li><a href="#">Not Yet Shipped</a></li>
+<li><a href="#" id="not-shipped-tab">Not Yet Shipped</a></li>
 </ul>
 <div class="search-container">
 <input type="text" placeholder="Search all orders">
@@ -503,7 +531,6 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
             <form id="order-form" class="admin-form">
                 <input type="hidden" id="edit-order-id" name="edit-order-id">
                 
-                <!-- CHANGE 1: ADDED MANUAL ORDER ID FIELD -->
                 <div class="form-group full-width">
                     <label for="manual-order-id">Order ID (Optional)</label>
                     <input type="text" id="manual-order-id" name="manual-order-id" placeholder="Leave blank to auto-generate">
@@ -512,6 +539,7 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                 <div class="form-group">
                     <label for="product-image">Product Image URL</label>
                     <input type="url" id="product-image" name="product-image" required>
+                    <img id="image-preview" src="" alt="Image Preview" style="max-width: 100px; height: auto; margin-top: 10px; display: none;">
                 </div>
                 <div class="form-group">
                     <label for="product-name">Product Name</label>
@@ -519,7 +547,7 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                 </div>
                 <div class="form-group">
                     <label for="product-price">Price</label>
-                    <input type="text" id="product-price" name="product-price" placeholder="e.g. 1,03,999.00" required>
+                    <input type="text" id="product-price" name="product-price" placeholder="e.g., 98989" required>
                 </div>
                 <div class="form-group">
                     <label for="order-date">Order Date</label>
@@ -545,6 +573,10 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     <label for="arrival-date">Arrival Date (if status is 'Arriving later')</label>
                     <input type="date" id="arrival-date" name="arrival-date">
                 </div>
+                <div class="form-group">
+                    <label for="tracking-id">Tracking ID</label>
+                    <input type="text" id="tracking-id" name="tracking-id" placeholder="e.g., AMZ123456789">
+                </div>
                  <div class="form-group full-width">
                     <label for="product-link">Product Link (URL)</label>
                     <input type="url" id="product-link" name="product-link" placeholder="https://www.amazon.in/..." required>
@@ -561,6 +593,10 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="tracking-progress">Tracking Progress (%)</label>
+                    <input type="number" id="tracking-progress" name="tracking-progress" min="0" max="100" placeholder="0-100">
+                </div>
+                <div class="form-group">
                     <label for="order-position">Order Position</label>
                     <select id="order-position" name="order-position">
                         <option value="top">Top of list</option>
@@ -575,7 +611,14 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     <label for="product-specs">Product Specifications</label>
                     <textarea id="product-specs" name="product-specs" placeholder="Enter each spec on a new line..."></textarea>
                 </div>
-
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <input type="text" id="payment-method" name="payment-method" value="Amazon Gift Card">
+                </div>
+                 <div class="form-group">
+                    <label for="sold-by">Sold By</label>
+                    <input type="text" id="sold-by" name="sold-by" value="Amazon Retail">
+                </div>
                 <div class="form-group">
                     <label for="otp-enabled">Enable OTP Verification</label>
                     <label class="toggle-switch">
@@ -588,7 +631,6 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                     <input type="text" id="order-otp" name="order-otp" placeholder="Enter 4-digit OTP">
                 </div>
                 
-                <!-- CHANGE 2: ADDED CANCEL ORDER TOGGLE -->
                 <div class="form-group">
                     <label for="cancel-order">Cancel Order</label>
                     <label class="toggle-switch">
@@ -625,6 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
         orderForm = document.getElementById('order-form'),
         ordersTab = document.getElementById('orders-tab'),
         adminTab = document.getElementById('admin-tab'),
+        notShippedTab = document.getElementById('not-shipped-tab'),
         backToOrders = document.getElementById('back-to-orders'),
         homeLink = document.getElementById('nav-logo'),
         loaderOverlay = document.getElementById('loader-overlay');
@@ -637,6 +680,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function hideLoader() {
         loaderOverlay.classList.remove('show');
     }
+    
+    function formatCurrency(price) {
+        let numStr = String(price).replace(/[₹,]/g, '').trim();
+        let number = parseFloat(numStr);
+        if (isNaN(number)) {
+            return price; // Return original if not a valid number
+        }
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(number);
+    }
+
 
     // Load orders from Local Storage
     function loadOrders() {
@@ -649,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     id: '403-864435434543-216897544',
                     date: '22 October 2025',
-                    total: '₹ 1,74,990',
+                    total: '₹ 1,74,990.00',
                     isDelivered: true,
                     status: 'Delivered',
                     product: 'iPhone 17 Pro Max 1TB',
@@ -657,8 +715,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     address: 'Gaurav Photo Studio Near Nagar Nigam Office Gandhi Nagar Bhopal MP 462036',
                     productLink: 'https://amzn.in/d/98PxqU1',
                     trackingLink: '',
+                    trackingId: 'AMZ123456789', 
+                    trackingProgress: 100,
                     useExternalTracking: false,
                     specs: 'Display: 6.9-inch Super Retina XDR display with ProMotion\nChip: A19 Bionic chip\nCamera: Pro camera system with 64MP Main, Ultra Wide, and Telephoto lenses\nStorage: 1TB\nOS: iOS 19',
+                    paymentMethod: 'Amazon Gift Card',
+                    soldBy: 'Apple India',
                     otpEnabled: false,
                     otp: '',
                     isCancelled: false
@@ -666,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     id: '403-864645543-2167987498734',
                     date: '21 October 2025',
-                    total: '₹ 92,999',
+                    total: '₹ 92,999.00',
                     isDelivered: true,
                     status: 'Delivered',
                     product: 'Nikon Z50 Mirrorless Camera',
@@ -674,8 +736,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     address: 'Vs s palli friends club , sector 7 , Rourkela,769003',
                     productLink: 'https://amzn.in/d/6FRoVqd',
                     trackingLink: '',
+                    trackingId: '',
+                    trackingProgress: 100,
                     useExternalTracking: false,
                     specs: 'Sensor: 20.9MP DX-Format CMOS Sensor\nProcessor: EXPEED 6 Image Processor\nVideo: UHD 4K and Full HD Video Recording\nISO: 100-51200\nAutofocus: 209-Point Hybrid AF with Eye Detection',
+                    paymentMethod: 'Credit Card',
+                    soldBy: 'Nikon Official Store',
                     otpEnabled: false,
                     otp: '',
                     isCancelled: false
@@ -683,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     id: '403-1122334-5566778',
                     date: '18 October 2025',
-                    total: '₹3,49,900.00',
+                    total: '₹ 3,49,900.00',
                     isDelivered: false,
                     status: 'Arriving tomorrow',
                     product: 'MacBook Pro M4 1TB',
@@ -691,8 +757,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     address: 'Chandni Chowk, Gali No. 12, Delhi, 110006, India',
                     productLink: 'https://www.amazon.in/dp/B0FDL3VZR8',
                     trackingLink: 'https://www.bluedart.com/tracking?awb=123456789',
+                    trackingId: 'BD543210987',
+                    trackingProgress: 75,
                     useExternalTracking: true,
                     specs: 'Chip: Apple M4 Pro\nMemory: 32GB unified memory\nStorage: 1TB SSD\nDisplay: 16.2-inch Liquid Retina XDR display\nPorts: Three Thunderbolt 4 ports, HDMI port, SDXC card slot, MagSafe 3 port',
+                    paymentMethod: 'Amazon Pay Later',
+                    soldBy: 'Amazon Retail',
                     otpEnabled: false,
                     otp: '',
                     isCancelled: false
@@ -700,19 +770,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     id: '403-1234567-8901234',
                     date: '12 October 2025',
-                    total: '₹74,999.00',
-                    isDelivered: true,
-                    status: 'Delivered',
+                    total: '₹ 74,999.00',
+                    isDelivered: false,
+                    status: 'Cancelled',
                     product: 'Apple iPhone 15 (512GB) - White',
                     img: 'https://ik.imagekit.io/goldencodes/71d7rfSl0wL._SX679_.jpg?updatedAt=1760762221974',
                     address: 'Chandni Chowk, Gali No. 12, Delhi, 110006, India',
                     productLink: 'https://amzn.in/d/4RDDV1y',
                     trackingLink: '',
+                    trackingId: '',
+                    trackingProgress: 0,
                     useExternalTracking: false,
                     specs: 'Display: 6.1-inch Super Retina XDR display\nChip: A16 Bionic chip\nCamera: Advanced dual-camera system with 48MP Main\nStorage: 512GB\nFeature: Dynamic Island',
+                    paymentMethod: 'Amazon Gift Card',
+                    soldBy: 'Amazon Retail',
                     otpEnabled: false,
                     otp: '',
-                    isCancelled: false
+                    isCancelled: true
                 }
             ];
             saveOrders();
@@ -773,16 +847,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Calculate tracking progress based on order status and current date
     function calculateTrackingProgress(order) {
-        let progress = 0;
+        if (order.trackingProgress !== undefined && order.trackingProgress !== null && order.trackingProgress !== '') {
+            return parseInt(order.trackingProgress, 10);
+        }
         if(order.isDelivered) return 100;
-
         const status = order.status.toLowerCase();
         if (status.includes('delivered')) return 100;
         if (status.includes('out for delivery')) return 75;
         if (status.includes('arriving tomorrow')) return 60;
         if (status.includes('shipped')) return 50;
         if (status.includes('arriving')) return 40;
-        
         return 25; // Default for 'Ordered'
     }
 
@@ -797,34 +871,43 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.order-tabs li').forEach(tab => {
                 tab.classList.remove('active');
             });
-
+            
+            // FEATURE 4 FIX: Logic to set active tab moved to event handlers
             if (pageId === 'orders-page') {
-                document.querySelector('.order-tabs li:first-child').classList.add('active');
-                renderOrderList();
+                document.querySelector('#orders-tab').parentElement.classList.add('active');
             } else if (pageId === 'admin-page') {
-                document.querySelector('.order-tabs li:nth-child(2)').classList.add('active');
-                renderAdminOrderList();
+                document.querySelector('#admin-tab').parentElement.classList.add('active');
             }
 
+
             let content = '';
+            // FEATURE 4 FIX: Removed automatic renderOrderList() call.
+            // Rendering is now handled by the function that calls navigateTo.
             if (pageId !== 'orders-page' && pageId !== 'admin-page') {
                 switch(pageId) {
                     case 'details-page':
                         const specsContent = order.specs ? `<div class="product-specs-content">${order.specs}</div>` : `<p>• High-performance device with latest technology</p><p>• Premium build quality and design</p>`;
+                        const trackingIdHTML = order.trackingId ? ` | <strong>Tracking ID:</strong> ${order.trackingId}` : '';
                         content = `
                             <div class="container">
                                 <p class="breadcrumb"><a href="#" class="go-back">Your Orders</a> &gt; <strong>Order Details</strong></p>
                                 <h1>Order Details</h1>
-                                <p>Ordered on ${order.date} | Order# ${order.id}</p>
-
-                                <div class="product-details-large">
-                                    <a href="${order.productLink}" target="_blank">
-                                        <img src="${order.img}" alt="${order.product}">
-                                    </a>
-                                    <h2>${order.product}</h2>
-                                    <button class="amazon-button track-btn" data-order-id="${order.id}" style="width: auto; padding: 8px 20px; margin-bottom: 10px;">Track your order</button>
-                                    <p><strong>Total:</strong> ${order.total}</p>
+                                <p>Ordered on ${order.date} | <strong>Order#</strong> ${order.id}${trackingIdHTML}</p>
+                                
+                                <!-- FEATURE 3: New layout for product details -->
+                                <div class="product-details-container">
+                                    <div class="product-details-image">
+                                        <a href="${order.productLink}" target="_blank">
+                                            <img src="${order.img}" alt="${order.product}">
+                                        </a>
+                                    </div>
+                                    <div class="product-details-info">
+                                        <h2>${order.product}</h2>
+                                        <p><strong>Total:</strong> ${order.total}</p>
+                                        <button class="amazon-button track-btn" data-order-id="${order.id}" style="width: auto; padding: 8px 20px;">Track your order</button>
+                                    </div>
                                 </div>
+
 
                                 <div class="product-specs">
                                     <h4>Product Specifications</h4>
@@ -839,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         </div>
                                         <div class="invoice-box">
                                             <h4>Payment Method</h4>
-                                            <p>Amazon Gift Card</p>
+                                            <p>${order.paymentMethod}</p>
                                         </div>
                                     </div>
                                     <div style="flex:1;">
@@ -851,10 +934,18 @@ document.addEventListener('DOMContentLoaded', function () {
                                         </div>
                                     </div>
                                 </div>
+                                <a href="https://www.amazon.in/s?k=air+puriying+plants&_encoding=UTF8&content-id=amzn1.sym.4d41ed72-6cd5-4ff7-b7c3-23d795144580&pd_rd_r=5763cef3-cd2b-4f36-b830-ed0fe5e05f36&pd_rd_w=KLZGu&pd_rd_wg=kA8Eh&pf_rd_p=4d41ed72-6cd5-4ff7-b7c3-23d795144580&pf_rd_r=8MDE7GQ2A9Y1VPKVYEYZ&ref=pd_hp_d_hero_unk" target="_blank" style="display: block; width: 100%; margin-top: 20px;">
+                                     <img src="https://ik.imagekit.io/goldencodes/Air-Purifying-plants-for-home-GW-Hero-Pc._CB797820743_.jpg?updatedAt=1761936082649" alt="Air Purifying Plants" style="width: 100%; height: auto; display: block;">
+                                </a>
                             </div>`;
                         break;
                     case 'invoice-page':
-                        content = `<div class="container"><p class="breadcrumb" style="margin-bottom:20px;"><a href="#" class="go-back">&lt; Your Orders</a></p><button class="print-btn">Print</button><h1>Order Summary</h1><p style="font-size:13px; color: #555;">Order placed ${order.date} &nbsp;|&nbsp; Order number ${order.id}</p><div class="invoice-box" style="display: flex; gap: 20px;"><div style="flex: 1.5;"><h4>Ship to</h4><p>${order.address}</p></div><div style="flex: 1.5;"><h4>Payment Methods</h4><p>Amazon Gift Card</p></div><div style="flex: 1;"><h4>Order Summary</h4><div style="display:flex; justify-content:space-between;"><span>Item(s) Subtotal:</span> <span>${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between;"><span>Total:</span> <span>${order.total}</span></div><div style="display:flex; justify-content:space-between;"><span>Voucher:</span> <span>-${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Grand Total:</span> <span>₹0.00</span></div></div></div><div class="invoice-box" style="margin-top:20px;"><h4 style="font-weight: bold; margin: 0 0 15px 0;">${order.status}</h4><div style="display: flex; align-items: center; gap: 15px;"><a href="${order.productLink}" target="_blank"><img src="${order.img}" style="width:60px; height:60px; object-fit:contain;"></a><div><a href="${order.productLink}" target="_blank" style="font-weight:bold;">${order.product}</a><p style="margin:5px 0;">Sold by: Amazon Retail</p><p style="font-weight:bold; color: #B12704;">${order.total}</p></div></div></div></div><footer class="invoice-footer"><a href="#" style="font-size:13px; display:block; padding:10px; background:#485769;">Back to top</a><div style="padding:20px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" style="filter: brightness(0) invert(1); height:30px; margin-bottom:15px;" alt="Amazon"><div style="font-size:11px; display:flex; justify-content:center; gap: 20px;"><a href="#">Conditions of Use & Sale</a><a href="#">Privacy Notice</a></div><p style="font-size:11px; color:#ddd; margin-top:5px;">© 1996-2025, Amazon.com, Inc. or its affiliates</p></div></footer>`;
+                        // FEATURE 2: Changed button class to secondary-button for plain style
+                        content = `<div class="container"><p class="breadcrumb" style="margin-bottom:20px;"><a href="#" class="go-back">&lt; Your Orders</a></p><button class="secondary-button print-btn" style="margin-bottom: 15px; width: auto; padding: 8px 20px;">Print Invoice</button><h1>Order Summary</h1><p style="font-size:13px; color: #555;">Order placed ${order.date} &nbsp;|&nbsp; Order number ${order.id}</p><div class="invoice-box" style="display: flex; gap: 20px;"><div style="flex: 1.5;"><h4>Ship to</h4><p>${order.address}</p></div><div style="flex: 1.5;"><h4>Payment Methods</h4><p>${order.paymentMethod}</p></div><div style="flex: 1;"><h4>Order Summary</h4><div style="display:flex; justify-content:space-between;"><span>Item(s) Subtotal:</span> <span>${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between;"><span>Total:</span> <span>${order.total}</span></div><div style="display:flex; justify-content:space-between;"><span>Voucher:</span> <span>-${order.total}</span></div><hr style="border:none; border-top:1px solid #ddd; margin: 5px 0;"><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Grand Total:</span> <span>₹0.00</span></div></div></div><div class="invoice-box" style="margin-top:20px;"><h4 style="font-weight: bold; margin: 0 0 15px 0;">${order.status}</h4><div style="display: flex; align-items: center; gap: 15px;"><a href="${order.productLink}" target="_blank"><img src="${order.img}" style="width:60px; height:60px; object-fit:contain;"></a><div><a href="${order.productLink}" target="_blank" style="font-weight:bold;">${order.product}</a><p style="margin:5px 0;">Sold by: ${order.soldBy}</p><p style="font-weight:bold; color: #B12704;">${order.total}</p></div></div></div>
+                        <a href="https://amzn.in/d/iWnWnsW" target="_blank" style="display: block; width: 100%; margin-top: 20px;">
+                            <img src="https://ik.imagekit.io/goldencodes/Screenshot_20251031_113529_Chrome.jpg?updatedAt=1761935756206" alt="Advertisement" style="width: 100%; height: auto; display: block;">
+                        </a>
+                        </div><footer class="invoice-footer"><a href="#" style="font-size:13px; display:block; padding:10px; background:#485769;">Back to top</a><div style="padding:20px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" style="filter: brightness(0) invert(1); height:30px; margin-bottom:15px;" alt="Amazon"><div style="font-size:11px; display:flex; justify-content:center; gap: 20px;"><a href="#">Conditions of Use & Sale</a><a href="#">Privacy Notice</a></div><p style="font-size:11px; color:#ddd; margin-top:5px;">© 1996-2025, Amazon.com, Inc. or its affiliates</p></div></footer>`;
                         break;
                     case 'track-page':
                         if (order.otpEnabled && order.otp) {
@@ -875,7 +966,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <div class="otp-section">
                                         <h2>OTP: ${order.otp}</h2>
                                         <p>This is your OTP. Check your package before giving the OTP to the delivery boy.</p>
-                                        <p style="color: var(--success-green); font-weight: bold; margin-top: 15px;">This package is prepaid by Amazon gift card</p>
+                                        <p style="color: var(--success-green); font-weight: bold; margin-top: 15px;">This package is prepaid by ${order.paymentMethod}</p>
                                     </div>
                                     
                                     <div class="invoice-box" style="margin-top: 20px;">
@@ -929,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <p><strong>Yesterday, 9:15 PM</strong><br>Package has left the carrier facility - BHIWANDI, IN</p>
                                         </div>
                                         <div class="timeline-item" style="animation-delay: 1.0s;">
-                                            <p><strong>${order.date}, </strong><br>Order confirmed via Amazon Gift card </p>
+                                            <p><strong>${order.date}, </strong><br>Order confirmed via ${order.paymentMethod}</p>
                                         </div>
                                     </div>
                                 </div>`;
@@ -1001,6 +1092,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         navigateTo('orders-page');
+                        renderOrderList(); // Go back to the full list
                     });
                 });
             }
@@ -1009,25 +1101,32 @@ document.addEventListener('DOMContentLoaded', function () {
             hideLoader(); 
         }, 500); 
     }
-
+    
     function renderOrderList() {
+        renderFilteredOrderList(orders);
+    }
+    
+    function renderFilteredOrderList(ordersToRender) {
         orderListContainer.innerHTML = '';
-        orders.forEach(order => {
-            
-            // CHANGE 3: MODIFIED LOGIC TO HANDLE CANCELLED ORDERS
+        if (ordersToRender.length === 0) {
+            orderListContainer.innerHTML = `<div class="order-card" style="text-align: center; padding: 40px;">No orders found.</div>`;
+        }
+
+        ordersToRender.forEach(order => {
             const isCancelled = order.isCancelled || false;
             let statusHTML;
             let actionsHTML;
 
             if (isCancelled) {
                 statusHTML = `<p style="color: var(--error-red); font-weight: bold;">Cancelled</p>`;
-                actionsHTML = ''; // No actions for a cancelled order
+                actionsHTML = `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>`; 
+            } else if (order.isDelivered) {
+                statusHTML = `<p style="color: var(--success-green); font-weight: bold;">${order.status}</p>`;
+                actionsHTML = `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>
+                               <button class="secondary-button help-btn" data-order-id="${order.id}">Get help</button>`;
             } else {
                 statusHTML = `<p>${order.status}</p>`;
-                actionsHTML = order.isDelivered ?
-                    `<button class="amazon-button buy-again-btn" data-order-id="${order.id}">Buy it again</button>
-                     <button class="secondary-button help-btn" data-order-id="${order.id}">Get help</button>` :
-                    `<button class="amazon-button track-btn" data-order-id="${order.id}">Track package</button>`;
+                actionsHTML = `<button class="amazon-button track-btn" data-order-id="${order.id}">Track package</button>`;
             }
             
             const deliveredClass = order.isDelivered && !isCancelled ? 'order-delivered' : '';
@@ -1062,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>`);
         });
 
-        document.getElementById('order-count').textContent = `${orders.length} orders`;
+        document.getElementById('order-count').textContent = `${ordersToRender.length} orders`;
     }
 
     function renderAdminOrderList() {
@@ -1124,12 +1223,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addNewOrder() {
-        // CHANGE 4: READ MANUAL ORDER ID AND CANCEL TOGGLE
         const manualOrderId = document.getElementById('manual-order-id').value.trim();
         const newOrder = {
             id: manualOrderId ? manualOrderId : generateOrderId(),
             date: formatDate(document.getElementById('order-date').value),
-            total: document.getElementById('product-price').value,
+            total: formatCurrency(document.getElementById('product-price').value),
             isDelivered: document.getElementById('is-delivered').value === 'true',
             status: getStatusText(),
             product: document.getElementById('product-name').value,
@@ -1141,7 +1239,11 @@ document.addEventListener('DOMContentLoaded', function () {
             specs: document.getElementById('product-specs').value,
             otpEnabled: document.getElementById('otp-enabled').checked,
             otp: document.getElementById('order-otp').value,
-            isCancelled: document.getElementById('cancel-order').checked
+            isCancelled: document.getElementById('cancel-order').checked,
+            trackingId: document.getElementById('tracking-id').value,
+            trackingProgress: document.getElementById('tracking-progress').value,
+            paymentMethod: document.getElementById('payment-method').value,
+            soldBy: document.getElementById('sold-by').value
         };
 
         const orderPosition = document.getElementById('order-position').value;
@@ -1165,9 +1267,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (orderIndex === -1) return;
 
         orders[orderIndex] = {
-            ...orders[orderIndex], // Keep the original ID
+            ...orders[orderIndex], 
             date: formatDate(document.getElementById('order-date').value),
-            total: document.getElementById('product-price').value,
+            total: formatCurrency(document.getElementById('product-price').value),
             isDelivered: document.getElementById('is-delivered').value === 'true',
             status: getStatusText(),
             product: document.getElementById('product-name').value,
@@ -1179,7 +1281,11 @@ document.addEventListener('DOMContentLoaded', function () {
             specs: document.getElementById('product-specs').value,
             otpEnabled: document.getElementById('otp-enabled').checked,
             otp: document.getElementById('order-otp').value,
-            isCancelled: document.getElementById('cancel-order').checked // CHANGE 5: UPDATE CANCEL STATUS
+            isCancelled: document.getElementById('cancel-order').checked,
+            trackingId: document.getElementById('tracking-id').value,
+            trackingProgress: document.getElementById('tracking-progress').value,
+            paymentMethod: document.getElementById('payment-method').value,
+            soldBy: document.getElementById('sold-by').value
         };
 
         saveOrders();
@@ -1197,7 +1303,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-order-id').value = order.id;
         document.getElementById('product-image').value = order.img;
         document.getElementById('product-name').value = order.product;
-        document.getElementById('product-price').value = order.total;
+        document.getElementById('product-price').value = String(order.total).replace(/[₹,]/g, '').trim();
         document.getElementById('order-date').value = formatDateForInput(order.date);
         document.getElementById('is-delivered').value = String(order.isDelivered);
         document.getElementById('shipping-address').value = order.address;
@@ -1207,11 +1313,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('product-specs').value = order.specs || '';
         document.getElementById('otp-enabled').checked = order.otpEnabled || false;
         document.getElementById('order-otp').value = order.otp || '';
-        
-        // CHANGE 6: POPULATE CANCEL TOGGLE AND HANDLE MANUAL ID FIELD
         document.getElementById('cancel-order').checked = order.isCancelled || false;
-        document.getElementById('manual-order-id').value = ''; // Clear manual ID field
-        document.getElementById('manual-order-id').disabled = true; // Disable when editing
+        document.getElementById('manual-order-id').value = ''; 
+        document.getElementById('manual-order-id').disabled = true; 
+        document.getElementById('tracking-id').value = order.trackingId || '';
+        document.getElementById('tracking-progress').value = order.trackingProgress || '';
+        document.getElementById('payment-method').value = order.paymentMethod || 'Amazon Gift Card';
+        document.getElementById('sold-by').value = order.soldBy || 'Amazon Retail';
+        
+        document.getElementById('product-image').dispatchEvent(new Event('input'));
 
         const status = order.status.toLowerCase();
         if (status.includes('arriving today')) {
@@ -1290,7 +1400,6 @@ document.addEventListener('DOMContentLoaded', function () {
         handleFormSubmit();
     });
     
-    // CHANGE 7: UPDATE FORM RESET LOGIC
     orderForm.addEventListener('reset', function() {
         document.getElementById('edit-order-id').value = '';
         orderForm.querySelector('.save-button').textContent = 'Add Order';
@@ -1298,23 +1407,64 @@ document.addEventListener('DOMContentLoaded', function () {
         const manualIdInput = document.getElementById('manual-order-id');
         manualIdInput.value = '';
         manualIdInput.disabled = false;
+        document.getElementById('image-preview').style.display = 'none';
+    });
+    
+    // --- EVENT LISTENERS ---
+    
+    ordersTab.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        navigateTo('orders-page'); 
+        renderOrderList();
+    });
+    
+    adminTab.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        navigateTo('admin-page'); 
+        renderAdminOrderList();
     });
 
-    ordersTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
-    adminTab.addEventListener('click', (e) => { e.preventDefault(); navigateTo('admin-page'); });
-    backToOrders.addEventListener('click', (e) => { e.preventDefault(); navigateTo('orders-page'); });
+    backToOrders.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        navigateTo('orders-page');
+        renderOrderList();
+    });
     
+    // FEATURE 4 FIX: Corrected "Not Yet Shipped" functionality
+    notShippedTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateTo('orders-page'); 
+        const notShippedOrders = orders.filter(order => !order.isDelivered && !order.isCancelled);
+        renderFilteredOrderList(notShippedOrders);
+        document.querySelectorAll('.order-tabs li').forEach(t => t.classList.remove('active'));
+        notShippedTab.parentElement.classList.add('active');
+    });
+
+    document.getElementById('product-image').addEventListener('input', function(e) {
+        const preview = document.getElementById('image-preview');
+        if (e.target.value) {
+            preview.src = e.target.value;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+
     const homeImageLink = document.querySelector('.nav-main a');
     if (homeImageLink) {
         homeImageLink.addEventListener('click', (e) => { 
             e.preventDefault(); 
             navigateTo('orders-page'); 
+            renderOrderList();
         });
     }
 
-
     document.body.addEventListener('click', (e) => {
         const target = e.target;
+        
+        if (target.classList.contains('print-btn')) {
+            window.print();
+        }
 
         if (target.classList.contains('details-link')) {
             e.preventDefault();
