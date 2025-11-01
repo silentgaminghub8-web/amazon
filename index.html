@@ -642,6 +642,7 @@ a:hover { text-decoration: underline; color: var(--amazon-orange); }
                 <div class="admin-buttons">
                     <button type="submit" class="save-button">Add Order</button>
                     <button type="reset" class="reset-button">Reset Form</button>
+                    <button type="button" id="make-new-order-button" class="move-up-button" style="display: none;">make a new order</button>
                 </div>
             </form>
         </div>
@@ -1337,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         orderForm.querySelector('.save-button').textContent = 'Update Order';
+        document.getElementById('make-new-order-button').style.display = 'inline-block';
         orderForm.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -1408,6 +1410,7 @@ document.addEventListener('DOMContentLoaded', function () {
         manualIdInput.value = '';
         manualIdInput.disabled = false;
         document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('make-new-order-button').style.display = 'none';
     });
     
     // --- EVENT LISTENERS ---
@@ -1458,6 +1461,10 @@ document.addEventListener('DOMContentLoaded', function () {
             renderOrderList();
         });
     }
+
+    document.getElementById('make-new-order-button').addEventListener('click', function() {
+        addNewOrder();
+    });
 
     document.body.addEventListener('click', (e) => {
         const target = e.target;
