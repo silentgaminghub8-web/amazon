@@ -1225,8 +1225,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addNewOrder() {
         const manualOrderId = document.getElementById('manual-order-id').value.trim();
+        let newOrderId;
+
+        if (manualOrderId) {
+            // If user provides a manual ID, check if it already exists.
+            if (orders.some(order => order.id === manualOrderId)) {
+                alert(`Error: Order ID "${manualOrderId}" already exists. Please use a unique ID.`);
+                return; // Stop the function if the ID is a duplicate.
+            }
+            newOrderId = manualOrderId;
+        } else {
+            // If no manual ID, generate a new one and ensure it's unique (handles extremely rare collisions).
+            do {
+                newOrderId = generateOrderId();
+            } while (orders.some(order => order.id === newOrderId));
+        }
+
         const newOrder = {
-            id: manualOrderId ? manualOrderId : generateOrderId(),
+            id: newOrderId, // Use the validated unique ID
             date: formatDate(document.getElementById('order-date').value),
             total: formatCurrency(document.getElementById('product-price').value),
             isDelivered: document.getElementById('is-delivered').value === 'true',
@@ -1267,8 +1283,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const orderIndex = orders.findIndex(o => o.id === orderId);
         if (orderIndex === -1) return;
 
+        const newProposedId = document.getElementById('manual-order-id').value.trim();
+
+        // Check for an ID conflict ONLY if the user is changing the ID to one that already belongs to ANOTHER order.
+        if (newProposedId !== orderId && orders.some(order => order.id === newProposedId)) {
+            alert(`Error: Order ID "${newProposedId}" is already in use by another order. Please choose a unique ID.`);
+            return; // Stop the update if there's a conflict.
+        }
+
         orders[orderIndex] = {
             ...orders[orderIndex], 
+            id: newProposedId, // Use the new, validated ID
             date: formatDate(document.getElementById('order-date').value),
             total: formatCurrency(document.getElementById('product-price').value),
             isDelivered: document.getElementById('is-delivered').value === 'true',
@@ -1315,8 +1340,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('otp-enabled').checked = order.otpEnabled || false;
         document.getElementById('order-otp').value = order.otp || '';
         document.getElementById('cancel-order').checked = order.isCancelled || false;
-        document.getElementById('manual-order-id').value = ''; 
-        document.getElementById('manual-order-id').disabled = true; 
+        document.getElementById('manual-order-id').value = order.id;
+        document.getElementById('manual-order-id').disabled = false;
         document.getElementById('tracking-id').value = order.trackingId || '';
         document.getElementById('tracking-progress').value = order.trackingProgress || '';
         document.getElementById('payment-method').value = order.paymentMethod || 'Amazon Gift Card';
